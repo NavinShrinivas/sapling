@@ -1,0 +1,17 @@
+---
+template: "index.html"
+title: "Homepage - Navin Shrinivas"
+link: "/"
+---
+#### To be rendered, a template and link is must in the frontmatter
+
+#### Anything in the markdown text should be fed as "content" in the template context
+
+# Heading 1 
+
+Here we have some content, that should work as placeholder for now and get render in the home page.
+
+```python
+print("Here we have some code")
+```
+> Here we have something specific to markdown
