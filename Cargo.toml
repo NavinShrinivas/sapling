@@ -8,3 +8,6 @@ edition = "2021"
 [dependencies]
 tera = { version = "1", default-features = false }
 walkdir = "2"
+serde = "1.0"
+serde_yaml = "0.9"
+comrak = "0.15"
