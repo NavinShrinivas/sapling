@@ -1,6 +1,8 @@
 ---
 template: "index.html"
-title: "Homepage - Navin Shrinivas"
+title: 
+   main : "home"
+   alternate : "home | navin"
 link: "/"
 ---
 #### To be rendered, a template and link is must in the frontmatter
