@@ -1,6 +1,9 @@
+#[allow(dead_code)]
+#[allow(non_snake_case)]
+
 use comrak::{format_html, nodes::NodeValue, parse_document, Arena, ComrakOptions};
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, fs, path::Path};
+use std::{fs, path::Path};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ContentDocument {
