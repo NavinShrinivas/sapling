@@ -1,6 +1,6 @@
+use crate::{CustomError, CustomErrorType};
 #[allow(dead_code)]
 #[allow(non_snake_case)]
-
 use std::{path::PathBuf, rc::Rc};
 use tera::Context;
 use walkdir::WalkDir;
@@ -8,16 +8,6 @@ use walkdir::WalkDir;
 use crate::markdown_parser::MarkdownParse;
 use crate::RenderEnv;
 use crate::TemplatesMetaData;
-
-#[derive(Debug)]
-pub enum CustomErrorType {
-    StaticRender,
-}
-#[derive(Debug)]
-pub struct CustomError {
-    r#type: CustomErrorType,
-    error: String,
-}
 
 fn get_rel_path_in_folder(path: &PathBuf) -> String {
     let mut path_iter = path.parent().unwrap().iter();
@@ -61,7 +51,9 @@ pub fn static_render(
 ) -> Result<(), CustomError> {
     match std::fs::remove_dir_all(&local_render_env.static_base) {
         Ok(_) => {
-            println!("Reusing previous builds like cache not yet possible, rebuilding from scratch.");
+            println!(
+                "Reusing previous builds like cache not yet possible, rebuilding from scratch."
+            );
             //[TODO] use cached static sites
         }
         _ => {
@@ -112,6 +104,38 @@ pub fn static_render(
                 }
                 Err(e) => return Err(e),
             }
+        }
+    }
+    //Copying css files over to static folder, we can serve these files through rocket. 
+    //This solution will NOT work with other ways to serving the site...Which is a future feature
+    //to come [TODO]
+    match copy_css_files(Rc::clone(&local_render_env)) {
+        Ok(_) => {}
+        Err(e) => {
+            return Err(CustomError {
+                r#type: CustomErrorType::StaticRender,
+                error: e.to_string(),
+            })
+        }
+    }
+    Ok(())
+}
+
+fn copy_css_files(local_render_env: Rc<RenderEnv>) -> Result<(), std::io::Error> {
+    println!("Copying over CSS files : ");
+    let content_walker = WalkDir::new(&local_render_env.css_base);
+    for i in content_walker.into_iter() {
+        let path = i.unwrap().into_path();
+        if path.is_file() {
+            let static_path = format!("{}/{}", local_render_env.static_base, path.display());
+            println!("\t{}", static_path);
+            match std::fs::write(static_path, std::fs::read_to_string(path).unwrap()) {
+                Ok(_) => {}
+                Err(e) => return Err(e),
+            };
+        } else {
+            let static_path = format!("{}/{}", local_render_env.static_base, path.display());
+            std::fs::create_dir(static_path).unwrap();
         }
     }
     Ok(())

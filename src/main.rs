@@ -10,10 +10,21 @@ use parse_templates::ParseTemplates;
 use parse_templates::ParseTemplates::TemplatesMetaData;
 use render_markdown::RenderMarkdown;
 
+#[derive(Debug)]
+pub enum CustomErrorType {
+    StaticRender,
+}
+#[derive(Debug)]
+pub struct CustomError {
+    r#type: CustomErrorType,
+    error: String,
+}
+
 pub struct RenderEnv {
     template_base: String,
     content_base: String,
     static_base: String,
+    css_base: String,
     default_template: String,
 }
 impl RenderEnv {
@@ -21,12 +32,14 @@ impl RenderEnv {
         template_base: S,
         content_base: S,
         static_base: S,
+        css_base: S,
         default_template: S,
     ) -> RenderEnv {
         RenderEnv {
             template_base: template_base.to_string(),
             content_base: content_base.to_string(),
             static_base: static_base.to_string(),
+            css_base: css_base.to_string(),
             default_template: default_template.to_string(),
         }
     }
@@ -38,6 +51,7 @@ fn main() {
         "templates",
         "content",
         "static",
+        "css",
         "index.html",
     ));
     let local_render_env = Rc::clone(&global_render_env);

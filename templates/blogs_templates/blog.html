@@ -1,13 +1,11 @@
 {% extends "index.html" %}
-{% block title %}{{ frontmatter.title }}{% endblock title %}
 {% block head %}
-<style type="text/css">
-.important { color: #336699; }
-</style>
+<title>{{ frontmatter.title }}</title>
+<link rel="stylesheet" href="css/blog/blog.css">
 {% endblock head %}
 {% block content %}
 <div>
-   <h3> Authors : </h3> 
+   <h3 class="fufu"> Authors : </h3> 
    <ul> 
       {% for author in frontmatter.authors %}
       <li> {{ author }} </li>

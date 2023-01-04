@@ -1,8 +1,11 @@
 <html>
    <head>
-      <title>{{ frontmatter.title }}</title>
+      {% block head %}
+      <title>{{ frontmatter.title.main }}</title>
+      <link rel="stylesheet" href="css/index.css" />
+      {% endblock head %}
    </head>
-   <body>
+   <body class="hello">
       {% block content %}
       {# Children can override this block, unless they use the variable super() in which case its added on #}
       {{ content|safe }}
