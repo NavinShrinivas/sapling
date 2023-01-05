@@ -1,7 +1,7 @@
 ---
 template: "blogs_templates/blog.html"
 title: "Blog1-OwO"
-link: "/"
+link: "/blogs/blog1-OwO"
 data_merge : "blog"
 authors : [navin1,navin_clone]
 ---

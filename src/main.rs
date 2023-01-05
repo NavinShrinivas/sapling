@@ -2,10 +2,13 @@
 #[allow(non_snake_case)]
 
 use std::rc::Rc;
+use tokio;
 
 mod markdown_parser;
 mod render_markdown;
 mod parse_templates; 
+mod serve_site;
+
 use parse_templates::ParseTemplates;
 use parse_templates::ParseTemplates::TemplatesMetaData;
 use render_markdown::RenderMarkdown;
@@ -45,7 +48,8 @@ impl RenderEnv {
     }
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     //[TODO]convert the below params to command line args
     let global_render_env = Rc::new(RenderEnv::new(
         "templates",
@@ -76,4 +80,5 @@ fn main() {
             panic!("{:?}", e)
         }
     }
+    serve_site::ServeSite::rocket_serve().launch().await.unwrap();
 }

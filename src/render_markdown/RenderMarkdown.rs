@@ -1,6 +1,12 @@
-use crate::{CustomError, CustomErrorType};
 #[allow(dead_code)]
 #[allow(non_snake_case)]
+use crate::{CustomError, CustomErrorType};
+use lightningcss::{
+    bundler::{Bundler, FileProvider},
+    printer::PrinterOptions,
+    stylesheet::ParserOptions,
+};
+use std::path::Path;
 use std::{path::PathBuf, rc::Rc};
 use tera::Context;
 use walkdir::WalkDir;
@@ -9,14 +15,52 @@ use crate::markdown_parser::MarkdownParse;
 use crate::RenderEnv;
 use crate::TemplatesMetaData;
 
-fn get_rel_path_in_folder(path: &PathBuf) -> String {
-    let mut path_iter = path.parent().unwrap().iter();
-    path_iter.next(); //To skip the base dir
-    let mut answer = String::new();
-    for i in path_iter {
-        answer = format!("{}/{}", answer, i.to_str().unwrap());
+fn decide_static_serve_path(
+    local_render_env: Rc<RenderEnv>,
+    content_store: &crate::markdown_parser::MarkdownParse::ContentDocument,
+) -> String {
+    //First check if the frontmatter has `link`
+    match content_store.frontmatter.as_ref().unwrap().get("link") {
+        Some(link) => {
+            let link_str = link.as_str().unwrap().to_string();
+            let clean_path = link_str
+                .trim()
+                .trim_end_matches("/")
+                .trim_start_matches("/");
+            let fqd = format!("{}/{}", local_render_env.static_base, clean_path);
+            let fqp = format!("{}/{}/index.html", local_render_env.static_base, clean_path);
+            match std::fs::read_to_string(&fqp) {
+                Ok(_) => {
+                    println!(
+                        "[WARNING] Multiple Static renders are conflicting for path : {}",
+                        fqd
+                    )
+                }
+                _ => {}
+            }
+            match std::fs::create_dir_all(fqd) {
+                Ok(_) => {}
+                Err(e) => {
+                    panic!("Fs error: {}", e)
+                }
+            }
+            fqp
+        }
+        _ => {
+            //file name is the link
+            let link = content_store.name.as_ref().unwrap();
+            let clean_path = link.trim().trim_end_matches("/").trim_start_matches("/");
+            let fqd = format!("{}/{}", local_render_env.static_base, clean_path);
+            match std::fs::create_dir_all(fqd) {
+                Ok(_) => {}
+                Err(e) => {
+                    panic!("Fs error: {}", e)
+                }
+            }
+            let fqp = format!("{}/{}/index.html", local_render_env.static_base, clean_path);
+            fqp
+        }
     }
-    return answer;
 }
 
 fn validate_template_request(
@@ -66,10 +110,11 @@ pub fn static_render(
     let content_walker = WalkDir::new(&local_render_env.content_base);
     for i in content_walker.into_iter() {
         let path = i.unwrap().into_path();
-        let rel_path = get_rel_path_in_folder(&path);
         if path.is_file() {
             println!("rendering : {:?}", path);
-            let content_store = MarkdownParse::parse(path.clone().display()).unwrap();
+            let content_store = MarkdownParse::parse(&path.display()).unwrap();
+            let static_path =
+                decide_static_serve_path(Rc::clone(&local_render_env), &content_store);
             let frontmatter = content_store.frontmatter.as_ref().unwrap();
             match validate_template_request(
                 frontmatter,
@@ -85,30 +130,17 @@ pub fn static_render(
                             &Context::from_serialize(&content_store).unwrap(),
                         )
                         .unwrap();
-                    let write_path = format!(
-                        "{}{}/{}.html",
-                        &local_render_env.static_base,
-                        rel_path,
-                        content_store.name.as_ref().unwrap()
-                    );
-                    println!("\trendering to : {}", write_path);
-                    match std::fs::create_dir(format!(
-                        "{}{}",
-                        &local_render_env.static_base, rel_path
-                    )) {
-                        Ok(_) => {}
-                        _ => {} //We don't want to do anything if the folder exists, and nothing to do if
-                                //we created it just now.
-                    }
-                    std::fs::write(write_path, static_store).unwrap();
+                    println!("\trendering to : {}", static_path);
+                    std::fs::write(static_path, static_store).unwrap();
                 }
                 Err(e) => return Err(e),
             }
         }
     }
-    //Copying css files over to static folder, we can serve these files through rocket. 
+    //Copying css files over to static folder, we can serve these files through rocket.
     //This solution will NOT work with other ways to serving the site...Which is a future feature
     //to come [TODO]
+    //We will anyways bundle css for now allowing users to use advanced css constructs
     match copy_css_files(Rc::clone(&local_render_env)) {
         Ok(_) => {}
         Err(e) => {
@@ -129,7 +161,13 @@ fn copy_css_files(local_render_env: Rc<RenderEnv>) -> Result<(), std::io::Error>
         if path.is_file() {
             let static_path = format!("{}/{}", local_render_env.static_base, path.display());
             println!("\t{}", static_path);
-            match std::fs::write(static_path, std::fs::read_to_string(path).unwrap()) {
+            let fs = FileProvider::new();
+            let mut bundler = Bundler::new(&fs, None, ParserOptions::default());
+            let stylesheet = bundler.bundle(Path::new(&path)).unwrap();
+            let mut css_printer = PrinterOptions::default();
+            css_printer.minify = true;
+            let css_content = stylesheet.to_css(css_printer).unwrap().code;
+            match std::fs::write(static_path, css_content) {
                 Ok(_) => {}
                 Err(e) => return Err(e),
             };

@@ -1,6 +1,5 @@
 #[allow(dead_code)]
 #[allow(non_snake_case)]
-
 use comrak::{format_html, nodes::NodeValue, parse_document, Arena, ComrakOptions};
 use serde::{Deserialize, Serialize};
 use std::{fs, path::Path};
@@ -24,7 +23,7 @@ impl ContentDocument {
     }
 }
 
-pub fn parse<S: std::string::ToString>(md_file_name: S) -> Option<ContentDocument> {
+pub fn parse<S: std::string::ToString>(md_file_name: &S) -> Option<ContentDocument> {
     let mut options = ComrakOptions::default();
     options.extension.front_matter_delimiter = Some("---".to_owned());
     options.extension.strikethrough = true;
@@ -77,6 +76,10 @@ pub fn parse<S: std::string::ToString>(md_file_name: S) -> Option<ContentDocumen
     content_doc.frontmatter_raw = frontmatter;
     content_doc.frontmatter =
         serde_yaml::from_str(content_doc.frontmatter_raw.as_ref().unwrap()).unwrap();
+    content_doc.name = match content_doc.frontmatter.as_ref().unwrap().get("name") {
+        Some(name) => Some(name.as_str().unwrap().to_string()),
+        _ => Some(md_file_name.to_string()),
+    };
     let mut html = vec![];
     format_html(root, &options, &mut html).unwrap();
     content_doc.content = Some(String::from_utf8(html).unwrap());
