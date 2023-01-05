@@ -1,12 +1,11 @@
 #[allow(dead_code)]
 #[allow(non_snake_case)]
-
 use std::rc::Rc;
 use tokio;
 
 mod markdown_parser;
+mod parse_templates;
 mod render_markdown;
-mod parse_templates; 
 mod serve_site;
 
 use parse_templates::ParseTemplates;
@@ -14,12 +13,15 @@ use parse_templates::ParseTemplates::TemplatesMetaData;
 use render_markdown::RenderMarkdown;
 
 #[derive(Debug)]
-pub enum CustomErrorType {
+pub enum CustomErrorStage {
+    ParseTemplates,
+    ParseMarkdown,
     StaticRender,
 }
+#[allow(dead_code)]
 #[derive(Debug)]
 pub struct CustomError {
-    r#type: CustomErrorType,
+    stage: CustomErrorStage,
     error: String,
 }
 
@@ -29,8 +31,23 @@ pub struct RenderEnv {
     static_base: String,
     css_base: String,
     default_template: String,
+    debug: bool,
+}
+
+impl Default for RenderEnv {
+    fn default() -> Self {
+        Self {
+            template_base: "templates".to_string(),
+            content_base: "content".to_string(),
+            static_base: "static".to_string(),
+            css_base: "css".to_string(),
+            default_template: "index.html".to_string(),
+            debug: true,
+        }
+    }
 }
 impl RenderEnv {
+    #[allow(dead_code)]
     fn new<S: std::string::ToString>(
         template_base: S,
         content_base: S,
@@ -44,6 +61,7 @@ impl RenderEnv {
             static_base: static_base.to_string(),
             css_base: css_base.to_string(),
             default_template: default_template.to_string(),
+            debug: false,
         }
     }
 }
@@ -51,13 +69,7 @@ impl RenderEnv {
 #[tokio::main]
 async fn main() {
     //[TODO]convert the below params to command line args
-    let global_render_env = Rc::new(RenderEnv::new(
-        "templates",
-        "content",
-        "static",
-        "css",
-        "index.html",
-    ));
+    let global_render_env = Rc::default();
     let local_render_env = Rc::clone(&global_render_env);
 
     let template_meta = match ParseTemplates::TemplatesMetaData::new(local_render_env) {
@@ -80,5 +92,10 @@ async fn main() {
             panic!("{:?}", e)
         }
     }
-    serve_site::ServeSite::rocket_serve().launch().await.unwrap();
+    match serve_site::ServeSite::rocket_serve().launch().await {
+        Ok(_) => {}
+        Err(e) => {
+            panic!("[ERROR] serving static files failed : {}", e)
+        }
+    };
 }

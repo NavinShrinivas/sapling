@@ -6,9 +6,8 @@ use rocket;
 
 #[rocket::launch]
 pub fn rocket_serve() -> _ {
-    rocket::build()
-        .mount(
-            "/",
-            rocket::fs::FileServer::from(rocket::fs::relative!("static")),
-        )
+    rocket::build().mount(
+        "/",
+        rocket::fs::FileServer::from(rocket::fs::relative!("static")),
+    )
 }

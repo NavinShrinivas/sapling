@@ -1,3 +1,4 @@
+use crate::{CustomError, CustomErrorStage};
 #[allow(dead_code)]
 #[allow(non_snake_case)]
 use comrak::{format_html, nodes::NodeValue, parse_document, Arena, ComrakOptions};
@@ -7,7 +8,7 @@ use std::{fs, path::Path};
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ContentDocument {
     pub frontmatter_raw: Option<String>,
-    pub frontmatter: Option<serde_yaml::Value>,
+    pub frontmatter: Option<serde_yaml::value::Value>,
     pub content: Option<String>,
     pub name: Option<String>,
 }
@@ -23,7 +24,9 @@ impl ContentDocument {
     }
 }
 
-pub fn parse<S: std::string::ToString>(md_file_name: &S) -> Option<ContentDocument> {
+pub fn parse<S: std::string::ToString>(
+    md_file_path: &S
+) -> Result<Option<ContentDocument>, CustomError> {
     let mut options = ComrakOptions::default();
     options.extension.front_matter_delimiter = Some("---".to_owned());
     options.extension.strikethrough = true;
@@ -33,32 +36,50 @@ pub fn parse<S: std::string::ToString>(md_file_name: &S) -> Option<ContentDocume
     options.extension.tasklist = true;
     options.extension.superscript = true;
     options.extension.footnotes = true;
-    let md = match fs::read_to_string(md_file_name.to_string()) {
+    let md = match fs::read_to_string(md_file_path.to_string()) {
         Ok(fd) => fd,
-        _ => return None,
+        Err(e) => {
+            return Err(CustomError {
+                stage: CustomErrorStage::ParseMarkdown,
+                error: format!("[ERROR] Couldn't read markdown files : {}", e),
+            })
+        }
     };
-    let mut content_doc = ContentDocument::new(
-        Path::new(&md_file_name.to_string())
-            .file_name()
-            .unwrap()
-            .to_str()
-            .unwrap()
-            .trim_end_matches(".md"),
-    );
+    let file_path = md_file_path.to_string();
+    let md_file_name = match Path::new(&file_path).file_name() {
+        Some(file_name) => {
+            file_name.to_str().unwrap().trim_end_matches(".md") // !allow[unwrap]
+        }
+        None => {
+            return Err(CustomError {
+                stage: CustomErrorStage::ParseMarkdown,
+                error: format!(
+                    "[ERROR] Couldn't find markdown files name from path : {}",
+                    md_file_path.to_string()
+                ),
+            })
+        }
+    };
+    let mut content_doc = ContentDocument::new(md_file_name);
 
     let arena = Arena::new();
     let root = parse_document(&arena, &md, &options);
     //frontmatter is either the first child in the ast or its not present anywhere!
     let frontmatter = match root.children().nth(0) {
-        Some(matter) => match matter.data.borrow().value.clone() {
+        Some(matter) => match &matter.data.borrow().value {
+            //RefCells need borrow
             NodeValue::FrontMatter(text_vec) => {
-                let matter_string = match String::from_utf8(text_vec) {
+                let matter_string = match String::from_utf8(text_vec.to_vec()) {
                     Ok(s) => s,
-                    _ => {
-                        panic!(
-                            "Error parsing frontmatter in : {}",
-                            md_file_name.to_string()
-                        )
+                    Err(e) => {
+                        return Err(CustomError {
+                            stage: CustomErrorStage::ParseMarkdown,
+                            error: format!(
+                                "[ERROR] error parsing frontmatter in {} : {}",
+                                md_file_path.to_string(),
+                                e
+                            ),
+                        })
                     }
                 };
                 Some(
@@ -69,19 +90,73 @@ pub fn parse<S: std::string::ToString>(md_file_name: &S) -> Option<ContentDocume
                         .to_string(),
                 )
             }
-            _ => None,
+            _ => {
+                println!(
+                    "[INFO|WARN] No frontmatter found for : {}",
+                    md_file_path.to_string()
+                );
+                None
+            }
         },
-        _ => None,
+        _ => {
+            println!(
+                "[INFO|WARN] Empty markdown file found : {}",
+                md_file_path.to_string()
+            );
+            None
+        }
     };
-    content_doc.frontmatter_raw = frontmatter;
-    content_doc.frontmatter =
-        serde_yaml::from_str(content_doc.frontmatter_raw.as_ref().unwrap()).unwrap();
+    let frontmatter = match frontmatter {
+        None => {
+            let default_frontmatter = "template:index.html\n";
+            default_frontmatter.to_string()
+        }
+        Some(unwrap_frontmatter) => { unwrap_frontmatter }
+    };
+    content_doc.frontmatter_raw = Some(frontmatter);
+    content_doc.frontmatter = match serde_yaml::from_str(&content_doc.frontmatter_raw.as_ref().unwrap()) {
+        //Above unwrap is fine
+        Ok(hashmap) => hashmap,
+        Err(e) => {
+            return Err(CustomError {
+                stage: CustomErrorStage::ParseMarkdown,
+                error: format!("[ERROR] error parsing yaml : {}", e),
+            })
+        }
+    };
+
+    //Some default and compulsory dependant fields : 
     content_doc.name = match content_doc.frontmatter.as_ref().unwrap().get("name") {
-        Some(name) => Some(name.as_str().unwrap().to_string()),
+        //This unwwap
+        //is fine
+        Some(name) => Some(name.as_str().unwrap().to_string()), //[refactor]
         _ => Some(md_file_name.to_string()),
     };
+    //templates default is handled in seperate places
+    
+    //parsing to html
     let mut html = vec![];
-    format_html(root, &options, &mut html).unwrap();
-    content_doc.content = Some(String::from_utf8(html).unwrap());
-    Some(content_doc)
+    match format_html(root, &options, &mut html) {
+        Ok(_) => {}
+        Err(e) => {
+            return Err(CustomError {
+                stage: CustomErrorStage::ParseMarkdown,
+                error: format!(
+                    "[ERROR] Error parsing html from markdown in file {} : {}",
+                    md_file_path.to_string(),
+                    e
+                ),
+            })
+        }
+    };
+    content_doc.content = Some(match String::from_utf8(html){
+        Ok(v) => v,
+        Err(_) => {
+            return Err(CustomError{
+                stage : CustomErrorStage::ParseMarkdown,
+                error : format!("[ERROR] Error formning string from parsed html vector, possibly bad encoding or illegal charecters. Please stick to utf-8")
+            })
+        }
+    });
+    Ok(Some(content_doc))
 }
