@@ -3,20 +3,6 @@
 version = 3
 
 [[package]]
-name = "StaticType"
-version = "0.1.0"
-dependencies = [
- "comrak",
- "lightningcss",
- "rocket",
- "serde",
- "serde_yaml",
- "tera",
- "tokio",
- "walkdir",
-]
-
-[[package]]
 name = "adler"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1964,6 +1950,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "93fc1dc3aaa9bfed95e02e6eadabb4baf7e3078b0bd1b4d7b6b0b68378900502"
 dependencies = [
  "winapi-util",
+]
+
+[[package]]
+name = "sapling"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "comrak",
+ "lightningcss",
+ "rocket",
+ "serde",
+ "serde_yaml",
+ "tera",
+ "tokio",
+ "walkdir",
 ]
 
 [[package]]

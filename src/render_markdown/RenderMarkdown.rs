@@ -6,7 +6,6 @@ use lightningcss::{
     stylesheet::ParserOptions,
 };
 use std::path::Path;
-use std::rc::Rc;
 use tera::Context;
 use walkdir::WalkDir;
 
@@ -17,7 +16,7 @@ use crate::RenderEnv;
 use crate::TemplatesMetaData;
 
 fn decide_static_serve_path(
-    local_render_env: Rc<RenderEnv>,
+    local_render_env: &RenderEnv,
     content_store: &crate::markdown_parser::MarkdownParse::ContentDocument,
 ) -> String {
     //First check if the frontmatter has `link`
@@ -68,7 +67,7 @@ fn decide_static_serve_path(
 
 fn validate_template_request(
     frontmatter: &serde_yaml::Value,
-    local_render_env: Rc<RenderEnv>,
+    local_render_env: &RenderEnv,
     template_meta: &TemplatesMetaData,
 ) -> Result<String, CustomError> {
     let requested_template = match frontmatter.get("template") {
@@ -93,7 +92,7 @@ fn validate_template_request(
 }
 
 pub fn static_render(
-    local_render_env: Rc<RenderEnv>,
+    local_render_env: &RenderEnv,
     template_meta: &TemplatesMetaData,
 ) -> Result<(), CustomError> {
     match std::fs::remove_dir_all(&local_render_env.static_base) {
@@ -141,10 +140,10 @@ pub fn static_render(
                     Err(e) => return Err(e),
                 };
             let static_path =
-                decide_static_serve_path(Rc::clone(&local_render_env), &content_store);
+                decide_static_serve_path(&local_render_env, &content_store);
             match validate_template_request(
                 &content_store.frontmatter.as_ref().unwrap(),
-                Rc::clone(&local_render_env),
+                local_render_env,
                 &template_meta,
             ) {
                 Ok(template_to_use) => {
@@ -194,7 +193,13 @@ pub fn static_render(
     //to come [TODO]
     //We will anyways bundle css for now allowing users to use advanced css constructs
     println!("[INFO] bundling and copying over CSS files to static paths.");
-    match copy_css_files(Rc::clone(&local_render_env)) {
+    match copy_css_files(local_render_env) {
+        Ok(_) => {}
+        Err(e) => {
+            return Err(e)
+        }
+    }
+    match copy_assets_files(local_render_env) {
         Ok(_) => {}
         Err(e) => {
             return Err(e)
@@ -203,7 +208,7 @@ pub fn static_render(
     Ok(())
 }
 
-fn copy_css_files(local_render_env: Rc<RenderEnv>) -> Result<(), CustomError> {
+fn copy_css_files(local_render_env: &RenderEnv) -> Result<(), CustomError> {
     println!("Copying over CSS files : ");
     let content_walker = WalkDir::new(&local_render_env.css_base);
     for i in content_walker.into_iter() {
@@ -257,6 +262,48 @@ fn copy_css_files(local_render_env: Rc<RenderEnv>) -> Result<(), CustomError> {
                     return Err(CustomError{
                         stage : CustomErrorStage::StaticRender,
                         error : format!("[ERROR] Error creating directory for css files : {}",e)
+                    })
+                }
+
+            };
+        }
+    }
+    Ok(())
+}
+
+fn copy_assets_files(local_render_env: &RenderEnv) -> Result<(), CustomError> {
+    println!("Copying over asset files : ");
+    let content_walker = WalkDir::new(&local_render_env.assets_base);
+    for i in content_walker.into_iter() {
+        let entry = match i {
+            Ok(entry) => {entry},
+            Err(e) => {
+                return Err(CustomError {
+                    stage: CustomErrorStage::StaticRender,
+                    error: format!("[ERROR] Dir entry error : {}", e),
+                })
+            }
+        };
+        let path = entry.path();
+        if path.is_file() {
+            let static_path = format!("{}/{}", local_render_env.static_base, path.display());
+            println!("\tprocessing : {}", static_path);
+            std::fs::write(&static_path,"").unwrap();
+            match std::fs::copy(path, static_path) {
+                Ok(_) => {}
+                Err(e) => return Err(CustomError{
+                    stage : CustomErrorStage::StaticRender,
+                    error : format!("[ERROR] error writing assets files to static dir : {}",e)
+                })
+            };
+        } else {
+            let static_path = format!("{}/{}", local_render_env.static_base, path.display());
+            match std::fs::create_dir(static_path){
+                Ok(_) => {},
+                Err(e) =>{
+                    return Err(CustomError{
+                        stage : CustomErrorStage::StaticRender,
+                        error : format!("[ERROR] Error creating directory for assets files : {}",e)
                     })
                 }
 

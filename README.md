@@ -2,7 +2,7 @@
 
 ### Project structure 
 
-- This is one place that StaticType is highly Opinionated and expect a rigid structure.
+- This is one place that sapling is highly Opinionated and expect a rigid structure.
 - A folder strcture as such is expected : 
 
 - [TODO] Allow changing default bases in folder structure
@@ -19,7 +19,7 @@
 ```
 <link rel="stylesheet" href="/css/index.css" />
 ```
-- We minify and bundle css using [lightningcss](https://lightningcss.dev/), so anything it supports. StaticType also does!
+- We minify and bundle css using [lightningcss](https://lightningcss.dev/), so anything it supports. sapling also does!
 > Note : The current way to handling css files will work only with the given rocket server or any other server that is designed to serve static files. Future releases may cover css injections.
 
 ### Fontmatter 
