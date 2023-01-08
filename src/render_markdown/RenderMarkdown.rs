@@ -14,6 +14,8 @@ use crate::CustomError;
 use crate::CustomErrorStage;
 use crate::RenderEnv;
 use crate::TemplatesMetaData;
+use std::fs::DirBuilder;
+use std::os::unix::fs::DirBuilderExt;
 
 fn decide_static_serve_path(
     local_render_env: &RenderEnv,
@@ -108,7 +110,9 @@ pub fn static_render(
             );
         }
     }
-    match std::fs::create_dir(&local_render_env.static_base) {
+    let mut builder = DirBuilder::new();
+    builder.mode(0o755);
+    match builder.create(&local_render_env.static_base){
         Ok(_) => {}
         Err(e) => {
             return Err(CustomError {
