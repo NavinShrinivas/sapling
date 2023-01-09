@@ -46,5 +46,9 @@ and accessing `css1.css` :
 ```html
 <link rel="stylesheet" href="/css/css1.css" />
 ```
-`sapling` uses [lightningcss](https://lightningcss.dev/) and supports bundling and a lot more. Look into the [ css ](./css.md) section to learn more about writing css files for `sapling`.
+`sapling` uses [lightningcss](https://lightningcss.dev/) and supports bundling and a lot more. Look into the [ css ](./css.md) section to learn more about writing css files for `sapling`
+
+## Bootstrapping 
+
+To use the tool to create the above mentioned folder structure see `Bootstrapping` in [ Usage ](./Usage.md) section.
 
