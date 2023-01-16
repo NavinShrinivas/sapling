@@ -1,0 +1,19 @@
+<html>
+   <head>
+      {% block head %}
+      <title>{{ frontmatter.title }}</title>
+      <link rel="stylesheet" href="/css/home.css" />
+      {% endblock head %}
+   </head>
+   <body class="main">
+      <h1> {{ frontmatter.title }} </h1>
+      <div class="flexdiv">
+         {% for i in frontmatter.author %}
+         <p>{{i}}</p>  
+         {% endfor %}
+      </div>
+      {% block content %}
+      {{ content|safe }}
+      {% endblock content %}
+   </script>
+</html>

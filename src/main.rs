@@ -1,15 +1,18 @@
 use clap::{Parser, Subcommand};
+use serde::{Deserialize, Serialize};
 #[allow(dead_code)]
 #[allow(non_snake_case)]
 use tokio;
 
 mod bootstrap;
 mod markdown_parser;
+mod merge_env;
 mod parse_templates;
 mod render_markdown;
 mod serve_site;
 
 use bootstrap::Bootstrap;
+use merge_env::MergeEnv;
 use parse_templates::ParseTemplates;
 use parse_templates::ParseTemplates::TemplatesMetaData;
 use render_markdown::RenderMarkdown;
@@ -51,9 +54,23 @@ pub struct RenderEnv {
     #[arg(long)]
     serve: bool,
     #[arg(long, default_value = "80")]
-    serve_port : String,
+    serve_port: String,
     #[command(subcommand)]
     mode: Commands,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Discovered {
+    //File path is the key and document matter is the value
+    data: std::collections::HashMap<String, markdown_parser::MarkdownParse::ContentDocument>,
+}
+
+impl Default for Discovered {
+    fn default() -> Self {
+        return Discovered {
+            data: std::collections::HashMap::new(),
+        };
+    }
 }
 
 #[derive(Subcommand)]
@@ -74,7 +91,7 @@ impl Default for RenderEnv {
             css_base: "css".to_string(),
             assets_base: "assets".to_string(),
             default_template: "index.html".to_string(),
-            serve_port : "80".to_string(),
+            serve_port: "80".to_string(),
             debug: false,
             serve: true,
             mode: Commands::Bootstrap { project_name: None },
@@ -85,6 +102,7 @@ impl Default for RenderEnv {
 #[tokio::main]
 async fn main() {
     let local_render_env = RenderEnv::parse();
+    let mut content_full_data = Discovered::default();
 
     match &local_render_env.mode {
         Commands::Bootstrap { project_name } => match project_name {
@@ -100,6 +118,9 @@ async fn main() {
             }
         },
         _ => {
+            //Normal `run` runtime
+
+            //First parse all template
             let template_meta = match ParseTemplates::TemplatesMetaData::new(&local_render_env) {
                 Ok(s) => {
                     println!("All detected templates parsed without errors!");
@@ -111,7 +132,20 @@ async fn main() {
                 }
             };
 
-            match RenderMarkdown::static_render(&local_render_env, &template_meta) {
+            match MergeEnv::discover_content(&local_render_env, &mut content_full_data) {
+                Ok(_) => {
+                    println!("Detected all possible content (Markdown) file.")
+                }
+                Err(e) => {
+                    panic!("{:?}",e)
+                }
+            }
+
+            match RenderMarkdown::static_render(
+                &local_render_env,
+                &template_meta,
+                &content_full_data,
+            ) {
                 Ok(_) => {
                     println!("All markdown content rendered without errrors!")
                 }
@@ -121,7 +155,10 @@ async fn main() {
                 }
             }
             if local_render_env.serve == true {
-                match serve_site::ServeSite::rocket_serve(&local_render_env).launch().await {
+                match serve_site::ServeSite::rocket_serve(&local_render_env)
+                    .launch()
+                    .await
+                {
                     Ok(_) => {}
                     Err(e) => {
                         panic!("[ERROR] serving static files failed : {}", e)

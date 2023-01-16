@@ -1,0 +1,20 @@
+<html>
+   <head>
+      {% block head %}
+      <title>{{ frontmatter.title }}</title>
+      <link rel="stylesheet" href="/css/home.css" />
+      {% endblock head %}
+   </head>
+   <body class="main">
+      {% block content %}
+      {{ content|safe }}
+      {% endblock content %}
+      <div class="flexdiv">
+         {% for i in deepdata.blog %}
+            {% for j in i.tags %}
+               {{j}}
+            {% endfor %}
+         {% endfor %}
+      </div>
+   </body>
+</html>

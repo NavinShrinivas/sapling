@@ -5,12 +5,13 @@ use comrak::{format_html, nodes::NodeValue, parse_document, Arena, ComrakOptions
 use serde::{Deserialize, Serialize};
 use std::{fs, path::Path};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ContentDocument {
     pub frontmatter_raw: Option<String>,
     pub frontmatter: Option<serde_yaml::value::Value>,
     pub content: Option<String>,
     pub name: Option<String>,
+    pub deepdata : std::collections::HashMap<String,Vec<serde_yaml::value::Value>> 
 }
 
 impl ContentDocument {
@@ -20,6 +21,7 @@ impl ContentDocument {
             frontmatter: None,
             content: None,
             name: Some(file_name.to_string()),
+            deepdata : std::collections::HashMap::new()
         }
     }
 }
@@ -36,8 +38,7 @@ pub fn parse<S: std::string::ToString>(
     options.extension.tasklist = true;
     options.extension.superscript = true;
     options.extension.footnotes = true;
-    let md = match fs::read_to_string(md_file_path.to_string()) {
-        Ok(fd) => fd,
+    let md = match fs::read_to_string(md_file_path.to_string()) { Ok(fd) => fd,
         Err(e) => {
             return Err(CustomError {
                 stage: CustomErrorStage::ParseMarkdown,

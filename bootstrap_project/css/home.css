@@ -1,5 +1,9 @@
 @import "gfm.css";
 
+.felxdiv{
+   display: flex;
+}
+
 
 .home_text{
    text-align: center;

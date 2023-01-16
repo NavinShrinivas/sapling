@@ -9,6 +9,8 @@ pub struct TemplatesMetaData {
 }
 
 impl TemplatesMetaData {
+
+    //Renders all tempaltes and supports inheritance between template as we are usine Tera blobs
     pub fn new(local_render_env: &RenderEnv) -> Result<TemplatesMetaData, tera::Error> {
         //[TODO]
         // To have stylised components, we must bundle and minify all the css to one file
@@ -17,7 +19,6 @@ impl TemplatesMetaData {
         //As for now we can just get all the styles in one place and move that to the rendered
         //directory - Done in RenderMarkdown.rs
 
-        //This is because, Tera can do inherited templates only if we use its blob function
         let tera_instance = match Tera::new(&format!("{}/**/*", local_render_env.template_base)) {
             Ok(tera) => tera,
             Err(e) => return Err(e),
