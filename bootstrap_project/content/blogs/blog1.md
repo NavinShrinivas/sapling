@@ -3,6 +3,7 @@ title : "This is the first blog, this exists solely to test the deep data merge.
 link : "/blogs/blog1"
 author : ["Navin Shrinivas"]
 template : "blog.html"
+forwardindex : blog
 tags : ["test","deep data merge"]
 merge : "blog"
 ---

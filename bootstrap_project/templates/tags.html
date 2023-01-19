@@ -10,7 +10,7 @@
       {{ content|safe }}
       {% endblock content %}
       <div class="flexdiv">
-         {% for i in deepdata.blog %}
+         {% for i in forwardindex.blog %}
             {% for j in i.tags %}
                {{j}}
             {% endfor %}

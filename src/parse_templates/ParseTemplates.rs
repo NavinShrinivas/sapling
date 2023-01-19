@@ -10,14 +10,13 @@ pub struct TemplatesMetaData {
 
 impl TemplatesMetaData {
 
-    //Renders all tempaltes and supports inheritance between template as we are usine Tera blobs
+    ///Renders all tempaltes and supports inheritance between template as we are usine Tera blobs
     pub fn new(local_render_env: &RenderEnv) -> Result<TemplatesMetaData, tera::Error> {
-        //[TODO]
-        // To have stylised components, we must bundle and minify all the css to one file
+        // [TODO] To have stylised components, we must bundle and minify all the css to one file 
         // Problem being that if we have two classes with same name it will clash
 
-        //As for now we can just get all the styles in one place and move that to the rendered
-        //directory - Done in RenderMarkdown.rs
+        // As for now we can just get all the styles in one place and move that to the rendered
+        // directory - Done in RenderMarkdown.rs
 
         let tera_instance = match Tera::new(&format!("{}/**/*", local_render_env.template_base)) {
             Ok(tera) => tera,
@@ -62,7 +61,10 @@ mod test {
         std::fs::write("test/templates/index.html", test_template).unwrap();
     }
 
-    #[test]
+    // simrat/rust-tools.nvim
+    // cargo.vim 
+
+    //
     fn test_basic_template_parsing() {
         test_setup();
         let test_render_env = RenderEnv {

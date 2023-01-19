@@ -1,7 +1,7 @@
+#![allow(dead_code)]
+#![allow(non_snake_case)]
 use clap::{Parser, Subcommand};
 use serde::{Deserialize, Serialize};
-#[allow(dead_code)]
-#[allow(non_snake_case)]
 use tokio;
 
 mod bootstrap;
