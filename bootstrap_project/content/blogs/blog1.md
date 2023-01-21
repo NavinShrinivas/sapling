@@ -4,6 +4,7 @@ link : "/blogs/blog1"
 author : ["Navin Shrinivas"]
 template : "blog.html"
 forwardindex : blog
+reverseindex : ["author","tags"]
 tags : ["test","deep data merge"]
 merge : "blog"
 ---

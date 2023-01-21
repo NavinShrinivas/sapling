@@ -1,6 +1,6 @@
-use crate::{CustomError, CustomErrorStage};
 #[allow(dead_code)]
 #[allow(non_snake_case)]
+use crate::{CustomError, CustomErrorStage};
 use comrak::{format_html, nodes::NodeValue, parse_document, Arena, ComrakOptions};
 use serde::{Deserialize, Serialize};
 use std::{fs, path::Path, collections::HashMap};
@@ -12,6 +12,7 @@ pub struct ContentDocument {
     pub content: Option<String>,
     pub name: Option<String>,
     pub forwardindex : Option<HashMap<String,Vec<serde_yaml::value::Value>>> ,
+    pub reverseindex : Option<HashMap<String, HashMap<String,Vec<serde_yaml::value::Value>>>>
 }
 
 impl ContentDocument {
@@ -21,7 +22,8 @@ impl ContentDocument {
             frontmatter: None,
             content: None,
             name: Some(file_name.to_string()),
-            forwardindex : Some(HashMap::new())
+            forwardindex : Some(HashMap::new()),
+            reverseindex: Some(HashMap::new())
         }
     }
 }
