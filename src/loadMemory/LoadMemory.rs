@@ -1,11 +1,10 @@
-use crate::{markdown_parser::MarkdownParse, CustomError, CustomErrorStage, Discovered, RenderEnv};
+use crate::{parseMarkdown::ParseMarkdown, CustomError, CustomErrorStage, Discovered, RenderEnv};
 use std::collections::HashMap;
 use walkdir::WalkDir;
-
 pub fn discover_content(
     local_render_env: &RenderEnv,
     content_full_data: &mut Discovered,
-) -> Result<(), CustomError> {
+) -> Result<HashMap<String, HashMap<String, Vec<serde_yaml::value::Value>>>, CustomError> {
     let content_walker = WalkDir::new(&local_render_env.content_base);
     let mut building_forwardindex: HashMap<String, Vec<serde_yaml::value::Value>> = HashMap::new();
     let mut building_reverseindex: HashMap<String, HashMap<String, Vec<serde_yaml::value::Value>>> =
@@ -23,7 +22,7 @@ pub fn discover_content(
         let path = entry.path();
         if path.is_file() {
             println!("[INFO] Detected : {:?}", path);
-            let content_store = match MarkdownParse::parse(&path.display()) {
+            let content_store = match ParseMarkdown::parse(&path.display()) {
                 Ok(content) => content.unwrap(), //unwrap is fine
                 Err(e) => return Err(e),
             };
@@ -32,16 +31,16 @@ pub fn discover_content(
             content_full_data
                 .data
                 .insert(path.display().to_string(), content_store);
+
         }
     }
     MergeForwardIndex(content_full_data, building_forwardindex);
-    println!("{:#?}", building_reverseindex);
-    Ok(())
+    Ok(building_reverseindex)
 }
 
 fn BuildForwardIndex(
     building_forwardindex: &mut HashMap<String, Vec<serde_yaml::value::Value>>,
-    content_store: &crate::markdown_parser::MarkdownParse::ContentDocument,
+    content_store: &crate::parseMarkdown::ParseMarkdown::ContentDocument,
 ) {
     match &content_store.frontmatter {
         Some(fmatter) => match fmatter.get("forwardindex") {
@@ -60,7 +59,7 @@ fn BuildForwardIndex(
 
 fn BuildReverseIndex(
     building_reverseindex: &mut HashMap<String, HashMap<String, Vec<serde_yaml::value::Value>>>,
-    content_store: &crate::markdown_parser::MarkdownParse::ContentDocument,
+    content_store: &crate::parseMarkdown::ParseMarkdown::ContentDocument,
 ) {
     match &content_store.frontmatter {
         Some(fmatter) => match fmatter.get("reverseindex") {

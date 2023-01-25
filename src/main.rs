@@ -5,17 +5,18 @@ use serde::{Deserialize, Serialize};
 use tokio;
 
 mod bootstrap;
-mod markdown_parser;
-mod merge_env;
-mod parse_templates;
-mod render_markdown;
-mod serve_site;
+mod parseMarkdown;
+mod loadMemory;
+mod parseTemplate;
+mod renderMarkdown;
+mod serveSite;
 
 use bootstrap::Bootstrap;
-use merge_env::MergeEnv;
-use parse_templates::ParseTemplates;
-use parse_templates::ParseTemplates::TemplatesMetaData;
-use render_markdown::RenderMarkdown;
+use loadMemory::LoadMemory;
+use parseTemplate::ParseTemplate;
+use parseTemplate::ParseTemplate::TemplatesMetaData;
+use renderMarkdown::RenderMarkdown;
+use renderMarkdown::ReverseIndex;
 
 #[derive(Debug)]
 pub enum CustomErrorStage {
@@ -62,7 +63,7 @@ pub struct RenderEnv {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Discovered {
     //File path is the key and document matter is the value
-    data: std::collections::HashMap<String, markdown_parser::MarkdownParse::ContentDocument>,
+    data: std::collections::HashMap<String, parseMarkdown::ParseMarkdown::ContentDocument>,
 }
 
 impl Default for Discovered {
@@ -118,10 +119,7 @@ async fn main() {
             }
         },
         _ => {
-            //Normal `run` runtime
-
-            //First parse all template
-            let template_meta = match ParseTemplates::TemplatesMetaData::new(&local_render_env) {
+            let template_meta = match ParseTemplate::TemplatesMetaData::new(&local_render_env) {
                 Ok(s) => {
                     println!("All detected templates parsed without errors!");
                     s
@@ -131,13 +129,14 @@ async fn main() {
                     panic!("{}", e)
                 }
             };
-
-            match MergeEnv::discover_content(&local_render_env, &mut content_full_data) {
-                Ok(_) => {
-                    println!("Detected all possible content (Markdown) file.")
+            let outer_rindex;
+            match LoadMemory::discover_content(&local_render_env, &mut content_full_data) {
+                Ok(reverseindex) => {
+                    println!("Detected all possible content (Markdown) file.");
+                    outer_rindex = reverseindex;
                 }
                 Err(e) => {
-                    panic!("{:?}",e)
+                    panic!("{:?}", e)
                 }
             }
 
@@ -154,8 +153,20 @@ async fn main() {
                     panic!("{:?}", e)
                 }
             }
+            for (k, _) in outer_rindex.clone() {
+                match ReverseIndex::reverse_index_render(
+                    k.to_string(),
+                    outer_rindex.clone(),
+                    &template_meta,
+                ) {
+                    Ok(_) => {}
+                    Err(e) => {
+                        panic!("{:?}", e)
+                    }
+                };
+            }
             if local_render_env.serve == true {
-                match serve_site::ServeSite::rocket_serve(&local_render_env)
+                match serveSite::ServeSite::rocket_serve(&local_render_env)
                     .launch()
                     .await
                 {

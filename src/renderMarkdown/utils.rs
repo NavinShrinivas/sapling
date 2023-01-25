@@ -31,7 +31,7 @@ pub fn validate_template_request(
 
 pub fn decide_static_serve_path(
     local_render_env: &RenderEnv,
-    content_store: &crate::markdown_parser::MarkdownParse::ContentDocument,
+    content_store: &crate::parseMarkdown::ParseMarkdown::ContentDocument,
 ) -> String {
     //First check if the frontmatter has `link`
     match &content_store.frontmatter.as_ref().unwrap().get("link") {

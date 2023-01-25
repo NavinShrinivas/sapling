@@ -12,7 +12,6 @@ pub struct ContentDocument {
     pub content: Option<String>,
     pub name: Option<String>,
     pub forwardindex : Option<HashMap<String,Vec<serde_yaml::value::Value>>> ,
-    pub reverseindex : Option<HashMap<String, HashMap<String,Vec<serde_yaml::value::Value>>>>
 }
 
 impl ContentDocument {
@@ -23,7 +22,6 @@ impl ContentDocument {
             content: None,
             name: Some(file_name.to_string()),
             forwardindex : Some(HashMap::new()),
-            reverseindex: Some(HashMap::new())
         }
     }
 }

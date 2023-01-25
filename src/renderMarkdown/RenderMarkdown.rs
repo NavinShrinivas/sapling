@@ -55,7 +55,7 @@ pub fn static_render(
 
 fn final_render(
     template_to_use: String,
-    content_store: &crate::markdown_parser::MarkdownParse::ContentDocument,
+    content_store: &crate::parseMarkdown::ParseMarkdown::ContentDocument,
     path: String,
     template_meta: &TemplatesMetaData,
     static_path: String,

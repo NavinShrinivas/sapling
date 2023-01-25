@@ -3,7 +3,7 @@ title : "This is the second blog, this exists solely to test the deep data merge
 link : "/blogs/blog2"
 author : ["Anirudh Rowjee"]
 forwardindex : blog
-reverseindex : "author"
+reverseindex : ["author","tags"]
 template : "blog.html"
 tags : ["test","second blog"]
 merge : "blog"
