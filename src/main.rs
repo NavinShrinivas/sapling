@@ -34,7 +34,6 @@ pub struct CustomError {
 
 #[derive(Parser)]
 #[command(name = "sapling")]
-#[command(author = "P K Navin Shrinivas <karupal2002@gmail.com>")]
 #[command(version = "1.0")]
 #[command(about = "Static site generator", long_about = None)]
 pub struct RenderEnv {
@@ -153,6 +152,8 @@ async fn main() {
                     panic!("{:?}", e)
                 }
             }
+            
+            //[TODO] make this part of the renderMarkdown
             for (k, _) in outer_rindex.clone() {
                 match ReverseIndex::reverse_index_render(
                     k.to_string(),
