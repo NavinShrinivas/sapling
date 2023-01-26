@@ -1,5 +1,7 @@
 ## Specification
 
+> Note : this readme is outdated (not particularly wrong). Use [pupbin.ml](http://pupbin.ml) or [this](http://nullptr.tech) alternative as the documentation.
+
 ### Project structure 
 
 - This is one place that sapling is highly Opinionated and expect a rigid structure.
