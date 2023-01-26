@@ -13,5 +13,6 @@ pub fn rocket_serve(local_render_env : &crate::RenderEnv) -> rocket::Rocket<rock
         address : std::net::IpAddr::V4(std::net::Ipv4Addr::new(0,0,0,0)),
         ..Default::default()
     };
+    println!("Serving site on port : {:?}",cfg.port);
     rocket::build().configure(cfg).mount("/", rocket::fs::FileServer::from(static_path))
 }

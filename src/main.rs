@@ -177,6 +177,7 @@ async fn main() {
                     }
                 };
             }
+            println!(); //Just to flush
         }
     }
 }

@@ -32,7 +32,6 @@ pub fn reverse_index_render(
             reverseindexon : k.to_string(),
             reverseindex: v.to_vec(),
         };
-        println!("{:#?}", temp_revser_body);
         final_reverse_render(
             template,
             &temp_revser_body,
