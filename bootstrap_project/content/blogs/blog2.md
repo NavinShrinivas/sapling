@@ -1,5 +1,6 @@
 ---
-title : "This is the second blog, this exists solely to test the deep data merge."
+title : "Second blog to test indexs"
+date : "01-20-2002"
 link : "/blogs/blog2"
 author : ["Anirudh Rowjee"]
 forwardindex : blog
@@ -11,4 +12,4 @@ merge : "blog"
 
 # You are seeing a test blog
 
-> This blog exists only for test deep data merges.
+> This blog exists only for testing indexes.

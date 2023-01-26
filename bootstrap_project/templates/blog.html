@@ -1,18 +1,23 @@
+{% extends "base.html" %}
 <html>
    <head>
       {% block head %}
       <title>{{ frontmatter.title }}</title>
-      <link rel="stylesheet" href="/css/home.css" />
       {% endblock head %}
    </head>
    <body class="main">
-      <h1> {{ frontmatter.title }} </h1>
-      <div class="flexdiv">
+      <header>
+         {% block header %}
+            <h1> {{ frontmatter.title }} </h1>
+         {% endblock header %}
+      </header>
+      {% block content %}
+      <div class="authordiv">
+         <p><b>Written by : </b></p>
          {% for i in frontmatter.author %}
          <p>{{i}}</p>  
          {% endfor %}
       </div>
-      {% block content %}
       {{ content|safe }}
       {% endblock content %}
    </script>

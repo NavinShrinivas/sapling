@@ -1,8 +1,8 @@
 <html>
    <head>
-      
-      <title>Second blog to test indexs</title>
-      
+      {% block head %}
+      <title>{{ frontmatter.title }}</title>
+      {% endblock head %}
       <link rel="stylesheet" href="/css/home.css">
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,26 +11,16 @@
    </head>
    <body class="main">
       <header>
-         
-            <h1> Second blog to test indexs </h1>
-         
+         {% block header %}
+            <h1>Sapling</h1>
+         {% endblock header %}
       </header>
-      
-      <div class="authordiv">
-         <p><b>Written by : </b></p>
-         
-         <p>Anirudh Rowjee</p>  
-         
-      </div>
-      <h1>You are seeing a test blog</h1>
-<blockquote>
-<p>This blog exists only for testing indexes.</p>
-</blockquote>
-
-      
+      {% block content %}
+      {{ content|safe }}
+      {% endblock content %}
    </body>
    <script>
-      
-      
+      {% block script %}
+      {% endblock script %}
    </script>
 </html>

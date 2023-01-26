@@ -1,10 +1,13 @@
 # Summary
 
 - [Preface](./preface.md)
-- [Usage] (./usage.md)
-- [Project strcture](./folder_structure.md)
+- [Usage](./Usage.md)
+- [Project structure](./folder_structure.md)
 - [Frontmatter](./frontmatter.md)
+- [Forward Index](./forwardindex.md)
+- [Reverse Index](./reverseindex.md)
 - [CSS](./css.md)
 - [Templating](./templating.md)
 - [Serving](./serving.md)
+- [Example project](./Example.md)
 - [Contributors and Credits](./contributors.md)

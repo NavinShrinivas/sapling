@@ -7,6 +7,7 @@ use tera::Context;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct ReverseRenderBody {
+    reverseindexon : String,
     reverseindex: Vec<serde_yaml::value::Value>,
 }
 
@@ -24,8 +25,10 @@ pub fn reverse_index_render(
         std::fs::File::create(&local_serve_path_file).unwrap();
         let template = format!("reverseindex/{}.html", tag);
         let temp_revser_body = ReverseRenderBody {
+            reverseindexon : k.to_string(),
             reverseindex: v.to_vec(),
         };
+        println!("{:#?}", temp_revser_body);
         final_reverse_render(
             template,
             &temp_revser_body,

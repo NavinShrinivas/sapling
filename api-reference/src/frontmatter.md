@@ -40,3 +40,11 @@ To access these variables in your templates you have to use `{{frontmatter.x}}`,
 </html>
 
 ```
+
+## Forward index and reverse index
+
+To be able to access frontmatter of other posts, you can use 2 types of indexes.
+- Forward indices : Simply collects all frontmatter under a key.
+- Reverse indices : Collects all frontmatters based on values present in frontmatter tags of the given file. 
+
+This is where `sapling` might get little confusing, refer [forward index](./forwardindex.md) and [reverse index](./reverseindex.md) sections.

@@ -1,20 +1,32 @@
+{% extends "base.html" %}
 <html>
    <head>
       {% block head %}
       <title>{{ frontmatter.title }}</title>
-      <link rel="stylesheet" href="/css/home.css" />
       {% endblock head %}
    </head>
    <body class="main">
+      <header>
+         {% block header %}
+         <h1> All tags from Posts </h1>
+         {% endblock header %}
+      </header>
       {% block content %}
       {{ content|safe }}
-      {% endblock content %}
+      {% set_global flatlist = [] %}
+      <h1> Tags </h1>
       <div class="flexdiv">
          {% for i in forwardindex.blog %}
-            {% for j in i.tags %}
-               {{j}}
-            {% endfor %}
+         {% for j in i.tags %}
+         {% set_global flatlist = flatlist | concat(with=j) %}
+         {% endfor %}
+         {% endfor %}
+         {% for i in flatlist|unique %}
+         <a href="/tags/{{i}}">
+            <button class="rounded btn bg-info b-info white">{{i}}</button>
+         </a>
          {% endfor %}
       </div>
+      {% endblock content %}
    </body>
 </html>

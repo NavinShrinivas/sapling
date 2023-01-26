@@ -1,7 +1,33 @@
+{% extends "base.html" %}
 <html>
+   <head>
+      {% block head %}
+      <title>{{ reverseindexon }}</title>
+      {% endblock head %}
+   </head>
    <body>
-      {% for i in reverseindex %}
-          <p>{{ i.title }}</p>
-      {% endfor %}
+      <header>
+         {% block header %}
+            <h1>Posts with the tag : {{reverseindexon}}</h1>
+         {% endblock header %}
+      </header>
+      {% block content %}
+      <div class="postlist">
+         {% for i in reverseindex %}
+         <aside>
+            <a href={{ i.link }}>
+               <h3>{{ i.title }}</h3>
+               <p><b>Date : </b>{{ i.date }}</p>
+            </a>
+            <div class="tagslist">
+               tags : 
+               {% for k in i.tags %}
+               <a href="/tags/{{k}}"><code>{{k}}</code></a>
+               {% endfor %}
+            </div>
+            {% endfor %}
+         </aside>
+      </div>
+      {% endblock content %}
    </body>
 </html>
