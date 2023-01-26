@@ -18,8 +18,12 @@ pub fn reverse_index_render(
 ) -> Result<(), CustomError> {
     println!("[INFO] rendering reverse indexes of {}",tag);
     for (k, v) in reverseindex.get(&tag).unwrap() {
+        //[TODO] Refactor the "get_serve_path" function in utils, such that this and the
+        //renderMarkdown module can use the same
         let local_serve_path = format!("static/{}/{}", tag, k.to_string());
         let local_serve_path_file = format!("{}/index.html", local_serve_path);
+        //------
+
         println!("[INFO] rendering : {}", local_serve_path_file);
         std::fs::create_dir_all(&local_serve_path).unwrap();
         std::fs::File::create(&local_serve_path_file).unwrap();

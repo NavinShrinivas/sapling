@@ -18,7 +18,7 @@ The basic structure of a project should be like this:
     └── subfolder
         └── home2.html
 ```
-In the upcoming releases we will be adding a bootstrapper which will help you initliaze your project. 
+In the upcoming releases we will be adding a bootstrapper which will help you init your project.[THIS IS DONE NOW] 
 
 ## Accessing template 
 The folder that the runtime searches for when mentioning a template in frontmatter is by default `template` folder. So the way you would use say `home2.html` in the above project structure will be : 

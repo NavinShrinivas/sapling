@@ -16,4 +16,7 @@ link : "/blogs/blog2-hello-world"
 
 ## Other information 
 
-- Rocket by default serves the sites on port `8000`
+- Rocket by default serves the sites on port `80`. This makes sudo permission must. Unless you want to serve on other ports : 
+`sapling --serve-port 8000 run`
+
+> It's better to always run sapling in sudo.
