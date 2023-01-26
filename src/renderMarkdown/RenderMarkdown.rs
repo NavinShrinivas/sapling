@@ -12,7 +12,7 @@ use walkdir::WalkDir;
 use crate::CustomError;
 use crate::CustomErrorStage;
 use crate::RenderEnv;
-use crate::TemplatesMetaData;
+use crate::parseTemplate::ParseTemplate::TemplatesMetaData;
 
 pub fn static_render(
     local_render_env: &RenderEnv,

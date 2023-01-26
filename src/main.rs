@@ -5,18 +5,14 @@ use serde::{Deserialize, Serialize};
 use tokio;
 
 mod bootstrap;
-mod parseMarkdown;
+mod jobWorkflows;
 mod loadMemory;
+mod parseMarkdown;
 mod parseTemplate;
 mod renderMarkdown;
 mod serveSite;
 
 use bootstrap::Bootstrap;
-use loadMemory::LoadMemory;
-use parseTemplate::ParseTemplate;
-use parseTemplate::ParseTemplate::TemplatesMetaData;
-use renderMarkdown::RenderMarkdown;
-use renderMarkdown::ReverseIndex;
 
 #[derive(Debug)]
 pub enum CustomErrorStage {
@@ -102,7 +98,6 @@ impl Default for RenderEnv {
 #[tokio::main]
 async fn main() {
     let local_render_env = RenderEnv::parse();
-    let mut content_full_data = Discovered::default();
 
     match &local_render_env.mode {
         Commands::Bootstrap { project_name } => match project_name {
@@ -118,65 +113,21 @@ async fn main() {
             }
         },
         _ => {
-            let template_meta = match ParseTemplate::TemplatesMetaData::new(&local_render_env) {
-                Ok(s) => {
-                    println!("All detected templates parsed without errors!");
-                    s
-                }
-                Err(e) => {
-                    println!("Ran into error while parsing templates.");
-                    panic!("{}", e)
+            jobWorkflows::renderWorkflow::renderJob(&local_render_env).unwrap();
+            let server = async {
+                if local_render_env.serve == true {
+                    match serveSite::ServeSite::rocket_serve(&local_render_env)
+                        .launch()
+                        .await
+                    {
+                        Ok(_) => {}
+                        Err(e) => {
+                            panic!("[ERROR] serving static files failed : {}", e)
+                        }
+                    };
                 }
             };
-            let outer_rindex;
-            match LoadMemory::discover_content(&local_render_env, &mut content_full_data) {
-                Ok(reverseindex) => {
-                    println!("Detected all possible content (Markdown) file.");
-                    outer_rindex = reverseindex;
-                }
-                Err(e) => {
-                    panic!("{:?}", e)
-                }
-            }
-
-            match RenderMarkdown::static_render(
-                &local_render_env,
-                &template_meta,
-                &content_full_data,
-            ) {
-                Ok(_) => {
-                    println!("All markdown content rendered without errrors!")
-                }
-                Err(e) => {
-                    println!("Ran into error while rendering markdown.");
-                    panic!("{:?}", e)
-                }
-            }
-            
-            //[TODO] make this part of the renderMarkdown
-            for (k, _) in outer_rindex.clone() {
-                match ReverseIndex::reverse_index_render(
-                    k.to_string(),
-                    outer_rindex.clone(),
-                    &template_meta,
-                ) {
-                    Ok(_) => {}
-                    Err(e) => {
-                        panic!("{:?}", e)
-                    }
-                };
-            }
-            if local_render_env.serve == true {
-                match serveSite::ServeSite::rocket_serve(&local_render_env)
-                    .launch()
-                    .await
-                {
-                    Ok(_) => {}
-                    Err(e) => {
-                        panic!("[ERROR] serving static files failed : {}", e)
-                    }
-                };
-            }
+            server.await;
             println!(); //Just to flush
         }
     }

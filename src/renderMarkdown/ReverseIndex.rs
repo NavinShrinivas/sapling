@@ -1,6 +1,6 @@
 use crate::CustomError;
 use crate::CustomErrorStage;
-use crate::TemplatesMetaData;
+use crate::parseTemplate::ParseTemplate::TemplatesMetaData;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use tera::Context;
