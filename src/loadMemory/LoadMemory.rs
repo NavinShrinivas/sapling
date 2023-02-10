@@ -1,6 +1,22 @@
-use crate::{parseMarkdown::ParseMarkdown, CustomError, CustomErrorStage, Discovered, RenderEnv};
+use crate::{parseMarkdown::ParseMarkdown, CustomError, CustomErrorStage, RenderEnv};
 use std::collections::HashMap;
 use walkdir::WalkDir;
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Discovered {
+    //File path is the key and document matter is the value
+    pub data: std::collections::HashMap<String, ParseMarkdown::ContentDocument>,
+}
+
+impl Default for Discovered {
+    fn default() -> Self {
+        return Discovered {
+            data: std::collections::HashMap::new(),
+        };
+    }
+}
+
 pub fn discover_content(
     local_render_env: &RenderEnv,
     content_full_data: &mut Discovered,

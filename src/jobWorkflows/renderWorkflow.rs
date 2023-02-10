@@ -4,7 +4,7 @@ use crate::renderMarkdown::RenderMarkdown;
 use crate::renderMarkdown::ReverseIndex;
 
 pub fn renderJob(local_render_env: &crate::RenderEnv) -> Result<(), crate::CustomError> {
-    let mut content_full_data = crate::Discovered::default();
+    let mut content_full_data = LoadMemory::Discovered::default();
     let template_meta = match ParseTemplate::TemplatesMetaData::new(&local_render_env) {
         Ok(s) => {
             println!("All detected templates parsed without errors!");

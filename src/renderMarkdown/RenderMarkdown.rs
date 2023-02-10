@@ -9,7 +9,7 @@ use std::path::Path;
 use tera::Context;
 use walkdir::WalkDir;
 
-use crate::CustomError;
+use crate::{CustomError, loadMemory::LoadMemory};
 use crate::CustomErrorStage;
 use crate::RenderEnv;
 use crate::parseTemplate::ParseTemplate::TemplatesMetaData;
@@ -17,7 +17,7 @@ use crate::parseTemplate::ParseTemplate::TemplatesMetaData;
 pub fn static_render(
     local_render_env: &RenderEnv,
     template_meta: &TemplatesMetaData,
-    full_content: &crate::Discovered,
+    full_content: &LoadMemory::Discovered,
 ) -> Result<(), CustomError> {
     super::utils::clean_and_create_static(local_render_env).unwrap();
     for (k, v) in full_content.data.iter() {

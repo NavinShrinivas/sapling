@@ -1,9 +1,7 @@
 #![allow(dead_code)]
 #![allow(non_snake_case)]
-use clap::{Parser, Subcommand};
-use serde::{Deserialize, Serialize};
-use tokio;
-
+#![allow(non_upper_case_globals)]
+//Crate module tree additions : mod bootstrap;
 mod bootstrap;
 mod jobWorkflows;
 mod loadMemory;
@@ -12,6 +10,12 @@ mod parseTemplate;
 mod renderMarkdown;
 mod serveSite;
 
+//External crates
+use clap::{Parser, Subcommand};
+use env_logger::Env;
+use tokio;
+
+//[PENDING] Refactor to workflows
 use bootstrap::Bootstrap;
 
 #[derive(Debug)]
@@ -54,21 +58,6 @@ pub struct RenderEnv {
     #[command(subcommand)]
     mode: Commands,
 }
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Discovered {
-    //File path is the key and document matter is the value
-    data: std::collections::HashMap<String, parseMarkdown::ParseMarkdown::ContentDocument>,
-}
-
-impl Default for Discovered {
-    fn default() -> Self {
-        return Discovered {
-            data: std::collections::HashMap::new(),
-        };
-    }
-}
-
 #[derive(Subcommand)]
 enum Commands {
     /// To create a new project. To create project in current folder use path as `.`
@@ -78,27 +67,11 @@ enum Commands {
     Run,
 }
 
-impl Default for RenderEnv {
-    fn default() -> Self {
-        Self {
-            template_base: "templates".to_string(),
-            content_base: "content".to_string(),
-            static_base: "static".to_string(),
-            css_base: "css".to_string(),
-            assets_base: "assets".to_string(),
-            default_template: "index.html".to_string(),
-            serve_port: "80".to_string(),
-            debug: false,
-            serve: true,
-            mode: Commands::Bootstrap { project_name: None },
-        }
-    }
-}
-
 #[tokio::main]
 async fn main() {
-    let local_render_env = RenderEnv::parse();
-
+    static local_render_env: once_cell::sync::Lazy<RenderEnv> =
+        once_cell::sync::Lazy::new(|| RenderEnv::parse());
+    env_logger::init_from_env(Env::default().default_filter_or("info"));
     match &local_render_env.mode {
         Commands::Bootstrap { project_name } => match project_name {
             Some(name) => match Bootstrap::bootstrapper(name.to_string()) {
@@ -114,21 +87,11 @@ async fn main() {
         },
         _ => {
             jobWorkflows::renderWorkflow::renderJob(&local_render_env).unwrap();
-            let server = async {
-                if local_render_env.serve == true {
-                    match serveSite::ServeSite::rocket_serve(&local_render_env)
-                        .launch()
-                        .await
-                    {
-                        Ok(_) => {}
-                        Err(e) => {
-                            panic!("[ERROR] serving static files failed : {}", e)
-                        }
-                    };
-                }
-            };
-            server.await;
+            jobWorkflows::serveAndWatchWorkflow::serve(&local_render_env)
+                .await
+                .unwrap();
             println!(); //Just to flush
         }
     }
 }
+// server_handle.await
