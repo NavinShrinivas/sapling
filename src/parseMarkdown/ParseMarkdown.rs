@@ -4,7 +4,7 @@ use crate::{CustomError, CustomErrorStage};
 use comrak::{format_html, nodes::NodeValue, parse_document, Arena, ComrakOptions};
 use serde::{Deserialize, Serialize};
 use std::{fs, path::Path, collections::HashMap};
-
+use log::warn;
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ContentDocument {
     pub frontmatter_raw: Option<String>,
@@ -92,16 +92,16 @@ pub fn parse<S: std::string::ToString>(
                 )
             }
             _ => {
-                println!(
-                    "[INFO|WARN] No frontmatter found for : {}",
+                warn!(
+                    "No frontmatter found for : {}",
                     md_file_path.to_string()
                 );
                 None
             }
         },
         _ => {
-            println!(
-                "[INFO|WARN] Empty markdown file found : {}",
+            warn!(
+                "Empty markdown file found : {}",
                 md_file_path.to_string()
             );
             None

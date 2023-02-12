@@ -2,6 +2,7 @@ use std::fs::DirBuilder;
 use std::os::unix::fs::DirBuilderExt;
 use crate::{parseTemplate::ParseTemplate::TemplatesMetaData, CustomError, RenderEnv, CustomErrorStage};
 
+use log::{info,warn };
 
 pub fn validate_template_request(
     frontmatter: &serde_yaml::Value,
@@ -11,7 +12,7 @@ pub fn validate_template_request(
     let requested_template = match frontmatter.get("template") {
         Some(template_path) => template_path.as_str().unwrap(),
         _ => {
-            println!("\t[INFO|WARN] No templates property found in frontmatter, defaulting.");
+            warn!("No templates property found in frontmatter, defaulting.");
             &local_render_env.default_template
         }
     };
@@ -46,8 +47,8 @@ pub fn decide_static_serve_path(
             let fqp = format!("{}/{}/index.html", local_render_env.static_base, clean_path);
             match std::fs::read_to_string(&fqp) {
                 Ok(_) => {
-                    println!(
-                        "[WARNING] Multiple Static renders are conflicting for path : {}",
+                    warn!(
+                        "Multiple Static renders are conflicting for path : {}",
                         fqd
                     )
                 }
@@ -63,7 +64,7 @@ pub fn decide_static_serve_path(
         }
         _ => {
             //file name is the link
-            println!("\t[INFO|WARN] Link tag not found in frontmatter,using name.");
+            warn!("Link tag not found in frontmatter,using name.");
             let link = &content_store.name.as_ref().unwrap(); //unwrap is fine, we are sure about no None
             let clean_path = link.trim().trim_end_matches("/").trim_start_matches("/");
             let fqd = format!("{}/{}", local_render_env.static_base, clean_path);
@@ -82,13 +83,13 @@ pub fn decide_static_serve_path(
 pub fn clean_and_create_static(local_render_env: &RenderEnv) -> Result<(), CustomError>{
         match std::fs::remove_dir_all(&local_render_env.static_base) {
         Ok(_) => {
-            println!(
+            info!(
                 "Reusing previous builds like cache not yet possible, rebuilding from scratch."
             );
             //[TODO] use cached static sites
         }
         _ => {
-            println!(
+            info!(
                 "Static dir not found, building from scratch! Reusing builds not yet possible."
             );
         }

@@ -12,7 +12,8 @@ mod serveSite;
 
 //External crates
 use clap::{Parser, Subcommand};
-use env_logger::Env;
+use log::{error, info,LevelFilter };
+use env_logger::{Builder, Target};
 use tokio;
 
 //[PENDING] Refactor to workflows
@@ -71,13 +72,19 @@ enum Commands {
 async fn main() {
     static local_render_env: once_cell::sync::Lazy<RenderEnv> =
         once_cell::sync::Lazy::new(|| RenderEnv::parse());
-    env_logger::init_from_env(Env::default().default_filter_or("info"));
+    let mut log_builder = Builder::new();
+    log_builder.target(Target::Stdout);
+    log_builder.filter_level(LevelFilter::Info);
+    log_builder.filter_module("tower_http::trace::make_span",LevelFilter::Debug);
+    log_builder.filter_module("tower_http::trace::on_response",LevelFilter::Debug);
+    log_builder.init();
+    info!("Running sapling...");
     match &local_render_env.mode {
         Commands::Bootstrap { project_name } => match project_name {
             Some(name) => match Bootstrap::bootstrapper(name.to_string()) {
                 Ok(_) => {}
                 Err(e) => {
-                    println!("ran into error while bootstrapping a new project");
+                    error!("ran into error while bootstrapping a new project");
                     panic!("{:?}", e);
                 }
             },
@@ -90,7 +97,6 @@ async fn main() {
             jobWorkflows::serveAndWatchWorkflow::serve(&local_render_env)
                 .await
                 .unwrap();
-            println!(); //Just to flush
         }
     }
 }

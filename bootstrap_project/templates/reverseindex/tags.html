@@ -15,14 +15,14 @@
       <div class="postlist">
          {% for i in reverseindex %}
          <aside>
-            <a href={{ i.link }}>
+            <a href="{{ i.link }}/">
                <h3>{{ i.title }}</h3>
                <p><b>Date : </b>{{ i.date }}</p>
             </a>
             <div class="tagslist">
                tags : 
                {% for k in i.tags %}
-               <a href="/tags/{{k}}"><code>{{k}}</code></a>
+               <a href="/tags/{{k}}/"><code>{{k}}</code></a>
                {% endfor %}
             </div>
             {% endfor %}

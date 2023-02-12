@@ -1,7 +1,7 @@
 use std::fs;
 use crate::{CustomError,CustomErrorStage};
 use walkdir::WalkDir;
-
+use log::{ info };
 pub fn bootstrapper(project_name : String) -> Result<(),CustomError>{
     match fs::read_dir(&project_name){
         Ok(mut dir) => {
@@ -16,7 +16,7 @@ pub fn bootstrapper(project_name : String) -> Result<(),CustomError>{
             }
         },
         Err(_) => {
-            println!("[INFO] Folder not found, creating one!");
+            info!("Folder not found, creating one!");
             match fs::create_dir(&project_name){
                 Ok(_) => {},
                 Err(e) => {
@@ -53,7 +53,7 @@ fn copy_bootstrapper_project(project_name : String) -> Result<(),CustomError>{
         let path_str = path.strip_prefix(&root).unwrap().to_str().unwrap().trim_start_matches("/");
         let name = project_name.trim_end_matches("/");
         let project_path = format!("{}/{}",name,path_str);
-        println!("{} {}",path.display(), project_path);
+        info!("{} {}",path.display(), project_path);
         if path.is_file() {
             std::fs::copy(path,project_path).unwrap();
         }

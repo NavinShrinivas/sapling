@@ -2,6 +2,7 @@ use crate::RenderEnv;
 #[allow(dead_code)]
 #[allow(non_snake_case)]
 use tera::Tera;
+use log::{info };
 
 #[derive(Debug)]
 pub struct TemplatesMetaData {
@@ -23,8 +24,7 @@ impl TemplatesMetaData {
             Err(e) => return Err(e),
         };
         if local_render_env.debug {
-            println!("[DEBUG] Templates detected : ");
-            println!(
+            info!(
                 "{:#?}",
                 tera_instance.get_template_names().collect::<Vec<_>>()
             );

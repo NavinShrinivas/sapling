@@ -2,23 +2,23 @@ use crate::loadMemory::LoadMemory;
 use crate::parseTemplate::ParseTemplate;
 use crate::renderMarkdown::RenderMarkdown;
 use crate::renderMarkdown::ReverseIndex;
-
-pub fn renderJob(local_render_env: &crate::RenderEnv) -> Result<(), crate::CustomError> {
+use log::{error, info };
+pub fn renderJob(local_render_env: &'static crate::RenderEnv) -> Result<(), crate::CustomError> {
     let mut content_full_data = LoadMemory::Discovered::default();
     let template_meta = match ParseTemplate::TemplatesMetaData::new(&local_render_env) {
         Ok(s) => {
-            println!("All detected templates parsed without errors!");
+            info!("All detected templates parsed without errors!");
             s
         }
         Err(e) => {
-            println!("Ran into error while parsing templates.");
+            error!("Ran into error while parsing templates.");
             panic!("{}", e)
         }
     };
     let outer_rindex;
     match LoadMemory::discover_content(&local_render_env, &mut content_full_data) {
         Ok(reverseindex) => {
-            println!("Detected all possible content (Markdown) file.");
+            info!("Detected all possible content (Markdown) file.");
             outer_rindex = reverseindex;
         }
         Err(e) => {
@@ -28,10 +28,10 @@ pub fn renderJob(local_render_env: &crate::RenderEnv) -> Result<(), crate::Custo
 
     match RenderMarkdown::static_render(&local_render_env, &template_meta, &content_full_data) {
         Ok(_) => {
-            println!("All markdown content rendered without errrors!")
+            info!("All markdown content rendered without errrors!")
         }
         Err(e) => {
-            println!("Ran into error while rendering markdown.");
+            info!("Ran into error while rendering markdown.");
             panic!("{:?}", e)
         }
     }

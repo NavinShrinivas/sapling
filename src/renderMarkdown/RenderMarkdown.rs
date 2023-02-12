@@ -9,11 +9,13 @@ use std::path::Path;
 use tera::Context;
 use walkdir::WalkDir;
 
-use crate::{CustomError, loadMemory::LoadMemory};
+use crate::parseTemplate::ParseTemplate::TemplatesMetaData;
 use crate::CustomErrorStage;
 use crate::RenderEnv;
-use crate::parseTemplate::ParseTemplate::TemplatesMetaData;
+use crate::{loadMemory::LoadMemory, CustomError};
+use log::info;
 
+//Renders all the markdown files with their templates, copies over css and asset files.
 pub fn static_render(
     local_render_env: &RenderEnv,
     template_meta: &TemplatesMetaData,
@@ -22,7 +24,6 @@ pub fn static_render(
     super::utils::clean_and_create_static(local_render_env).unwrap();
     for (k, v) in full_content.data.iter() {
         let path = k;
-        println!("[INFO] Rendering : {:?}", path);
         let content_store = v;
         let static_path = super::utils::decide_static_serve_path(&local_render_env, &content_store);
         match super::utils::validate_template_request(
@@ -31,7 +32,14 @@ pub fn static_render(
             &template_meta,
         ) {
             Ok(template_to_use) => {
-                final_render(template_to_use, &content_store,path.to_string(),template_meta,static_path).unwrap();
+                final_render(
+                    template_to_use,
+                    &content_store,
+                    path.to_string(),
+                    template_meta,
+                    static_path,
+                )
+                .unwrap();
             }
             Err(e) => return Err(e),
         }
@@ -40,7 +48,6 @@ pub fn static_render(
     //This solution will NOT work with other ways to serving the site...Which is a future feature
     //to come [TODO]
     //We will anyways bundle css for now allowing users to use advanced css constructs
-    println!("[INFO] bundling and copying over CSS files to static paths.");
     match copy_css_files(local_render_env) {
         Ok(_) => {}
         Err(e) => return Err(e),
@@ -60,7 +67,10 @@ fn final_render(
     template_meta: &TemplatesMetaData,
     static_path: String,
 ) -> Result<(), CustomError> {
-    println!("\ttemplate : {}", template_to_use);
+    info!(
+        "rendering : {} , to : {}, template : {}",
+        path, static_path, template_to_use
+    );
     let temp_context = match Context::from_serialize(&content_store) {
         Ok(con) => con,
         Err(e) => {
@@ -68,8 +78,7 @@ fn final_render(
                 stage: CustomErrorStage::StaticRender,
                 error: format!(
                     "[ERROR] Error parsing context from strcture in file {} : {}",
-                    path,
-                    e
+                    path, e
                 ),
             })
         }
@@ -86,7 +95,6 @@ fn final_render(
             })
         }
     };
-    println!("\trendering to : {}", static_path);
     match std::fs::write(static_path, static_store) {
         Ok(_) => return Ok(()),
         Err(e) => {
@@ -102,7 +110,6 @@ fn final_render(
 }
 
 fn copy_css_files(local_render_env: &RenderEnv) -> Result<(), CustomError> {
-    println!("Copying over CSS files : ");
     let content_walker = WalkDir::new(&local_render_env.css_base);
     for i in content_walker.into_iter() {
         let entry = match i {
@@ -117,7 +124,7 @@ fn copy_css_files(local_render_env: &RenderEnv) -> Result<(), CustomError> {
         let path = entry.path();
         if path.is_file() {
             let static_path = format!("{}/{}", local_render_env.static_base, path.display());
-            println!("\tprocessing : {}", static_path);
+            info!("processing : {}", static_path);
             let fs = FileProvider::new();
             let mut bundler = Bundler::new(&fs, None, ParserOptions::default());
             let stylesheet = match bundler.bundle(Path::new(&path)) {
@@ -166,7 +173,6 @@ fn copy_css_files(local_render_env: &RenderEnv) -> Result<(), CustomError> {
 }
 
 fn copy_assets_files(local_render_env: &RenderEnv) -> Result<(), CustomError> {
-    println!("Copying over asset files : ");
     let content_walker = WalkDir::new(&local_render_env.assets_base);
     for i in content_walker.into_iter() {
         let entry = match i {
@@ -181,7 +187,7 @@ fn copy_assets_files(local_render_env: &RenderEnv) -> Result<(), CustomError> {
         let path = entry.path();
         if path.is_file() {
             let static_path = format!("{}/{}", local_render_env.static_base, path.display());
-            println!("\tprocessing : {}", static_path);
+            info!("processing : {}", static_path);
             std::fs::write(&static_path, "").unwrap();
             match std::fs::copy(path, static_path) {
                 Ok(_) => {}

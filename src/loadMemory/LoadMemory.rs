@@ -3,6 +3,11 @@ use std::collections::HashMap;
 use walkdir::WalkDir;
 use serde::{Deserialize, Serialize};
 
+//Functions in this files are among the costliest functions in the project and 
+//definetly need a refactor in the near future
+
+use log::{info };
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Discovered {
     //File path is the key and document matter is the value
@@ -37,7 +42,7 @@ pub fn discover_content(
         };
         let path = entry.path();
         if path.is_file() {
-            println!("[INFO] Detected : {:?}", path);
+            info!("Detected : {:?}", path);
             let content_store = match ParseMarkdown::parse(&path.display()) {
                 Ok(content) => content.unwrap(), //unwrap is fine
                 Err(e) => return Err(e),
@@ -50,7 +55,10 @@ pub fn discover_content(
 
         }
     }
-    MergeForwardIndex(content_full_data, building_forwardindex);
+    MergeForwardIndex(content_full_data, building_forwardindex); 
+    //Forward index is merged with the frontmatter ,
+    //Reverse index triggers a template to be rendered and only those templates 
+    //will get access to reverse index!
     Ok(building_reverseindex)
 }
 
