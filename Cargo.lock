@@ -1638,6 +1638,7 @@ dependencies = [
  "serde_yaml",
  "tera",
  "tokio",
+ "tower",
  "tower-http",
  "tower-livereload",
  "walkdir",

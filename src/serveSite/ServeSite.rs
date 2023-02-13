@@ -1,7 +1,15 @@
-use axum::http;
+use axum::body::boxed;
+use axum::body::Body;
+use axum::body::BoxBody;
+use axum::http::Request;
+use axum::http::StatusCode;
+use axum::http::Uri;
+use axum::response::Response;
+use axum::routing::method_routing::get;
 use axum::Router;
-use std::path::Path;
+use log::error;
 use tokio::sync::mpsc::Sender;
+use tower::util::ServiceExt;
 use tower_http::services::ServeDir;
 use tower_http::trace::TraceLayer;
 use tower_livereload::LiveReloadLayer;
@@ -15,23 +23,56 @@ pub async fn toweraxum_server(
     let livereload = LiveReloadLayer::new();
     let reloader = livereload.reloader();
     let app = Router::new()
-        .nest_service(
-            "/",
-            axum::routing::get_service(ServeDir::new(Path::new("./static/"))).handle_error(
-                |e| async move {
-                    (
-                        http::StatusCode::INTERNAL_SERVER_ERROR,
-                        format!("Unhandled internal error: {}", e),
-                    )
-                },
-            ),
-        )
+        .nest_service("/", get(handler))
         .layer(TraceLayer::new_for_http())
         .layer(livereload);
     sendereloader.send(reloader).await.unwrap();
-    let address = format!("{}:{}","0.0.0.0", String::from(local_render_env.serve_port.clone()));
+    let address = format!(
+        "{}:{}",
+        "0.0.0.0",
+        String::from(local_render_env.serve_port.clone())
+    );
     axum::Server::bind(&address.parse().unwrap())
         .serve(app.into_make_service())
         .await
         .unwrap();
+}
+
+async fn handler(uri: Uri) -> Result<Response<BoxBody>, (StatusCode, String)> {
+    let res = path_includer(uri.clone()).await.unwrap();
+    if uri
+        .clone()
+        .to_string()
+        .chars()
+        .nth(uri.to_string().len() - 1)
+        .unwrap()
+        == '/'
+    {
+        error!("Illegal access/Invalid files");
+        return Err((StatusCode::NOT_FOUND, "Invalid URL".to_string()));
+    }
+    if res.status().is_success() == false {
+        match format!("{}/index.html", uri).parse() {
+            Ok(new_uri) => {
+                path_includer(new_uri).await
+            }
+            Err(_) => {
+                error!("Error parsing in handler service");
+                Err((StatusCode::INTERNAL_SERVER_ERROR, "Invalid URL".to_string()))
+            }
+        }
+    } else {
+        Ok(res)
+    }
+}
+
+async fn path_includer(uri: Uri) -> Result<Response<BoxBody>, (StatusCode, String)> {
+    let req = Request::builder().uri(uri).body(Body::empty()).unwrap();
+    match ServeDir::new("./static/").oneshot(req).await {
+        Ok(res) => Ok(res.map(boxed)),
+        Err(_) => {
+            error!("Error inside file finder service");
+            Err((StatusCode::INTERNAL_SERVER_ERROR, format!("Internal Error")))
+        }
+    }
 }
