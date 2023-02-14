@@ -30,49 +30,38 @@ pub async fn serve(local_render_env: &'static RenderEnv) -> Result<(), CustomErr
 }
 
 pub async fn change_detector(reload_handle: Reloader, local_render_env: &'static RenderEnv) {
-    // let mut watcher = RecommendedWatcher::new(
-    //     move |_| {
-    //         let start = Instant::now();
-    //         info!("Change detected, reloading all sessions!");
-    //         super::renderWorkflow::renderJob(local_render_env).unwrap();
-    //         innerreload.reload();
-    //         let duration = start.elapsed();
-    //         info!("Rerender and reloading success!");
-    //         info!("Reloading took : {:?}", duration);
-    //     },
-    //     Config::default(),
-    // );
-
-    let (tx, rx) = std::sync::mpsc::channel();
-
-    let mut watcher = RecommendedWatcher::new(tx, Config::default());
-    watcher
-        .as_mut()
-        .unwrap()
-        .watch(Path::new("./content/"), RecursiveMode::Recursive)
-        .unwrap();
-    watcher
-        .as_mut()
-        .unwrap()
-        .watch(Path::new("./templates/"), RecursiveMode::Recursive)
-        .unwrap();
-    watcher
-        .as_mut()
-        .unwrap()
-        .watch(Path::new("./css/"), RecursiveMode::Recursive)
-        .unwrap();
-    for res in rx {
-        match res {
-            Ok(_) => {
+    let reloadarc = Arc::new(reload_handle);
+    loop {
+        let innerreload = Arc::clone(&reloadarc);
+        let mut watcher = RecommendedWatcher::new(
+            move |_| {
                 let start = Instant::now();
                 info!("Change detected, reloading all sessions!");
                 super::renderWorkflow::renderJob(local_render_env).unwrap();
-                reload_handle.reload();
+                innerreload.reload();
                 let duration = start.elapsed();
                 info!("Rerender and reloading success!");
                 info!("Reloading took : {:?}", duration);
-            }
-            _ => continue,
-        }
+            },
+            Config::default(),
+        );
+
+        // Add a path to be watched. All files and directories at that path and
+        // below will be monitored for changes.
+        watcher
+            .as_mut()
+            .unwrap()
+            .watch(Path::new("./content/"), RecursiveMode::Recursive)
+            .unwrap();
+        watcher
+            .as_mut()
+            .unwrap()
+            .watch(Path::new("./templates/"), RecursiveMode::Recursive)
+            .unwrap();
+        watcher
+            .as_mut()
+            .unwrap()
+            .watch(Path::new("./css/"), RecursiveMode::Recursive)
+            .unwrap();
     }
 }
