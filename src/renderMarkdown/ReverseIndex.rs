@@ -1,14 +1,14 @@
+use crate::parseTemplate::ParseTemplate::TemplatesMetaData;
 use crate::CustomError;
 use crate::CustomErrorStage;
-use crate::parseTemplate::ParseTemplate::TemplatesMetaData;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use tera::Context;
 
-use log::{info };
+use log::info;
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct ReverseRenderBody {
-    reverseindexon : String,
+    reverseindexon: String,
     reverseindex: Vec<serde_yaml::value::Value>,
 }
 
@@ -17,7 +17,7 @@ pub fn reverse_index_render(
     reverseindex: HashMap<String, HashMap<String, Vec<serde_yaml::value::Value>>>,
     template_meta: &TemplatesMetaData,
 ) -> Result<(), CustomError> {
-    info!("rendering reverse indexes of {}",tag);
+    info!("rendering reverse indexes of {}", tag);
     for (k, v) in reverseindex.get(&tag).unwrap() {
         //[TODO] Refactor the "get_serve_path" function in utils, such that this and the
         //renderMarkdown module can use the same
@@ -29,7 +29,7 @@ pub fn reverse_index_render(
         std::fs::File::create(&local_serve_path_file).unwrap();
         let template = format!("reverseindex/{}.html", tag);
         let temp_revser_body = ReverseRenderBody {
-            reverseindexon : k.to_string(),
+            reverseindexon: k.to_string(),
             reverseindex: v.to_vec(),
         };
         final_reverse_render(
@@ -51,7 +51,10 @@ fn final_reverse_render(
     template_meta: &TemplatesMetaData,
     static_path: String,
 ) -> Result<(), CustomError> {
-    info!("Rendering : {}, to : {}, using : {}",path,static_path,template_to_use);
+    info!(
+        "Rendering : {}, to : {}, using : {}",
+        path, static_path, template_to_use
+    );
     let temp_context = match Context::from_serialize(&content_store) {
         Ok(con) => con,
         Err(e) => {

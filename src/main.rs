@@ -12,8 +12,8 @@ mod serveSite;
 
 //External crates
 use clap::{Parser, Subcommand};
-use log::{error, info,LevelFilter };
 use env_logger::{Builder, Target};
+use log::{error, info, LevelFilter};
 use tokio;
 
 //[PENDING] Refactor to workflows
@@ -56,6 +56,8 @@ pub struct RenderEnv {
     serve: bool,
     #[arg(long, default_value = "80")]
     serve_port: String,
+    #[arg(long)]
+    livereload: bool,
     #[command(subcommand)]
     mode: Commands,
 }
@@ -75,8 +77,8 @@ async fn main() {
     let mut log_builder = Builder::new();
     log_builder.target(Target::Stdout);
     log_builder.filter_level(LevelFilter::Info);
-    log_builder.filter_module("tower_http::trace::make_span",LevelFilter::Debug);
-    log_builder.filter_module("tower_http::trace::on_response",LevelFilter::Debug);
+    log_builder.filter_module("tower_http::trace::make_span", LevelFilter::Debug);
+    log_builder.filter_module("tower_http::trace::on_response", LevelFilter::Debug);
     log_builder.init();
     info!("Running sapling...");
     match &local_render_env.mode {

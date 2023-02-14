@@ -32,10 +32,12 @@ template : "tags.html"
       {% endfor %}
    {% endfor %}
    {% for i in flatlist|unique %}
-   <a href="/tags/{{i}}">
+   <a href="/tags/{{i}}/">
       <button class="rounded btn bg-info b-info white">{{i}}</button>
    </a>
    {% endfor %}
 </div>
 ```
 > Note the `forwardindex.blog` that gives rise to an array of frontmatters.
+
+> Also do note the "/" in the end of the link in a href tag.

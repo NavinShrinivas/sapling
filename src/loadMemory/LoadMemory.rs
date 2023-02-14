@@ -1,12 +1,12 @@
 use crate::{parseMarkdown::ParseMarkdown, CustomError, CustomErrorStage, RenderEnv};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use walkdir::WalkDir;
-use serde::{Deserialize, Serialize};
 
-//Functions in this files are among the costliest functions in the project and 
+//Functions in this files are among the costliest functions in the project and
 //definetly need a refactor in the near future
 
-use log::{info };
+use log::info;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Discovered {
@@ -52,12 +52,11 @@ pub fn discover_content(
             content_full_data
                 .data
                 .insert(path.display().to_string(), content_store);
-
         }
     }
-    MergeForwardIndex(content_full_data, building_forwardindex); 
+    MergeForwardIndex(content_full_data, building_forwardindex);
     //Forward index is merged with the frontmatter ,
-    //Reverse index triggers a template to be rendered and only those templates 
+    //Reverse index triggers a template to be rendered and only those templates
     //will get access to reverse index!
     Ok(building_reverseindex)
 }

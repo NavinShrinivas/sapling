@@ -1,8 +1,8 @@
 use crate::RenderEnv;
+use log::info;
 #[allow(dead_code)]
 #[allow(non_snake_case)]
 use tera::Tera;
-use log::{info };
 
 #[derive(Debug)]
 pub struct TemplatesMetaData {
@@ -10,10 +10,9 @@ pub struct TemplatesMetaData {
 }
 
 impl TemplatesMetaData {
-
     ///Renders all tempaltes and supports inheritance between template as we are usine Tera blobs
     pub fn new(local_render_env: &RenderEnv) -> Result<TemplatesMetaData, tera::Error> {
-        // [TODO] To have stylised components, we must bundle and minify all the css to one file 
+        // [TODO] To have stylised components, we must bundle and minify all the css to one file
         // Problem being that if we have two classes with same name it will clash
 
         // As for now we can just get all the styles in one place and move that to the rendered

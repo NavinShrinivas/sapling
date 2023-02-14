@@ -1,5 +1,5 @@
 sudo rm -rf ~/sapling
-git clone git@github.com:NavinShrinivas/StaticType.git ~/sapling
+git clone git@github.com:NavinShrinivas/sapling.git ~/sapling
 cd ~/sapling 
 cargo build --release
 sudo rm -rf /usr/local/src/sapling

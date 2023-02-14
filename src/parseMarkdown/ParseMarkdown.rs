@@ -2,16 +2,16 @@
 #[allow(non_snake_case)]
 use crate::{CustomError, CustomErrorStage};
 use comrak::{format_html, nodes::NodeValue, parse_document, Arena, ComrakOptions};
-use serde::{Deserialize, Serialize};
-use std::{fs, path::Path, collections::HashMap};
 use log::warn;
+use serde::{Deserialize, Serialize};
+use std::{collections::HashMap, fs, path::Path};
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ContentDocument {
     pub frontmatter_raw: Option<String>,
     pub frontmatter: Option<serde_yaml::value::Value>,
     pub content: Option<String>,
     pub name: Option<String>,
-    pub forwardindex : Option<HashMap<String,Vec<serde_yaml::value::Value>>> ,
+    pub forwardindex: Option<HashMap<String, Vec<serde_yaml::value::Value>>>,
 }
 
 impl ContentDocument {
@@ -21,13 +21,13 @@ impl ContentDocument {
             frontmatter: None,
             content: None,
             name: Some(file_name.to_string()),
-            forwardindex : Some(HashMap::new()),
+            forwardindex: Some(HashMap::new()),
         }
     }
 }
 
 pub fn parse<S: std::string::ToString>(
-    md_file_path: &S
+    md_file_path: &S,
 ) -> Result<Option<ContentDocument>, CustomError> {
     let mut options = ComrakOptions::default();
     options.extension.front_matter_delimiter = Some("---".to_owned());
@@ -38,7 +38,8 @@ pub fn parse<S: std::string::ToString>(
     options.extension.tasklist = true;
     options.extension.superscript = true;
     options.extension.footnotes = true;
-    let md = match fs::read_to_string(md_file_path.to_string()) { Ok(fd) => fd,
+    let md = match fs::read_to_string(md_file_path.to_string()) {
+        Ok(fd) => fd,
         Err(e) => {
             return Err(CustomError {
                 stage: CustomErrorStage::ParseMarkdown,
@@ -92,18 +93,12 @@ pub fn parse<S: std::string::ToString>(
                 )
             }
             _ => {
-                warn!(
-                    "No frontmatter found for : {}",
-                    md_file_path.to_string()
-                );
+                warn!("No frontmatter found for : {}", md_file_path.to_string());
                 None
             }
         },
         _ => {
-            warn!(
-                "Empty markdown file found : {}",
-                md_file_path.to_string()
-            );
+            warn!("Empty markdown file found : {}", md_file_path.to_string());
             None
         }
     };
@@ -112,21 +107,22 @@ pub fn parse<S: std::string::ToString>(
             let default_frontmatter = "template:index.html\n";
             default_frontmatter.to_string()
         }
-        Some(unwrap_frontmatter) => { unwrap_frontmatter }
+        Some(unwrap_frontmatter) => unwrap_frontmatter,
     };
     content_doc.frontmatter_raw = Some(frontmatter);
-    content_doc.frontmatter = match serde_yaml::from_str(&content_doc.frontmatter_raw.as_ref().unwrap()) {
-        //Above unwrap is fine
-        Ok(hashmap) => hashmap,
-        Err(e) => {
-            return Err(CustomError {
-                stage: CustomErrorStage::ParseMarkdown,
-                error: format!("[ERROR] error parsing yaml : {}", e),
-            })
-        }
-    };
+    content_doc.frontmatter =
+        match serde_yaml::from_str(&content_doc.frontmatter_raw.as_ref().unwrap()) {
+            //Above unwrap is fine
+            Ok(hashmap) => hashmap,
+            Err(e) => {
+                return Err(CustomError {
+                    stage: CustomErrorStage::ParseMarkdown,
+                    error: format!("[ERROR] error parsing yaml : {}", e),
+                })
+            }
+        };
 
-    //Some default and compulsory dependant fields : 
+    //Some default and compulsory dependant fields :
     content_doc.name = match content_doc.frontmatter.as_ref().unwrap().get("name") {
         //This unwwap
         //is fine
@@ -134,7 +130,7 @@ pub fn parse<S: std::string::ToString>(
         _ => Some(md_file_name.to_string()),
     };
     //templates default is handled in seperate places
-    
+
     //parsing to html
     let mut html = vec![];
     match format_html(root, &options, &mut html) {

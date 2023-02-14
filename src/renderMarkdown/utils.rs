@@ -1,8 +1,10 @@
+use crate::{
+    parseTemplate::ParseTemplate::TemplatesMetaData, CustomError, CustomErrorStage, RenderEnv,
+};
 use std::fs::DirBuilder;
 use std::os::unix::fs::DirBuilderExt;
-use crate::{parseTemplate::ParseTemplate::TemplatesMetaData, CustomError, RenderEnv, CustomErrorStage};
 
-use log::{info,warn };
+use log::{info, warn};
 
 pub fn validate_template_request(
     frontmatter: &serde_yaml::Value,
@@ -47,10 +49,7 @@ pub fn decide_static_serve_path(
             let fqp = format!("{}/{}/index.html", local_render_env.static_base, clean_path);
             match std::fs::read_to_string(&fqp) {
                 Ok(_) => {
-                    warn!(
-                        "Multiple Static renders are conflicting for path : {}",
-                        fqd
-                    )
+                    warn!("Multiple Static renders are conflicting for path : {}", fqd)
                 }
                 _ => {}
             }
@@ -80,24 +79,20 @@ pub fn decide_static_serve_path(
     }
 }
 
-pub fn clean_and_create_static(local_render_env: &RenderEnv) -> Result<(), CustomError>{
-        match std::fs::remove_dir_all(&local_render_env.static_base) {
+pub fn clean_and_create_static(local_render_env: &RenderEnv) -> Result<(), CustomError> {
+    match std::fs::remove_dir_all(&local_render_env.static_base) {
         Ok(_) => {
-            info!(
-                "Reusing previous builds like cache not yet possible, rebuilding from scratch."
-            );
+            info!("Reusing previous builds like cache not yet possible, rebuilding from scratch.");
             //[TODO] use cached static sites
         }
         _ => {
-            info!(
-                "Static dir not found, building from scratch! Reusing builds not yet possible."
-            );
+            info!("Static dir not found, building from scratch! Reusing builds not yet possible.");
         }
     }
     let mut builder = DirBuilder::new();
     builder.mode(0o755);
     match builder.create(&local_render_env.static_base) {
-        Ok(_) => {Ok(())}
+        Ok(_) => Ok(()),
         Err(e) => {
             return Err(CustomError {
                 stage: CustomErrorStage::StaticRender,
@@ -108,5 +103,4 @@ pub fn clean_and_create_static(local_render_env: &RenderEnv) -> Result<(), Custo
             })
         }
     }
-
 }

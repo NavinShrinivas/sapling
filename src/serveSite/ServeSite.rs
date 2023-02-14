@@ -1,5 +1,6 @@
 use axum::http;
 use axum::Router;
+use log::warn;
 use std::path::Path;
 use tokio::sync::mpsc::Sender;
 use tower_http::services::ServeDir;
@@ -14,22 +15,44 @@ pub async fn toweraxum_server(
 ) {
     let livereload = LiveReloadLayer::new();
     let reloader = livereload.reloader();
-    let app = Router::new()
-        .nest_service(
-            "/",
-            axum::routing::get_service(ServeDir::new(Path::new("./static/"))).handle_error(
-                |e| async move {
-                    (
-                        http::StatusCode::INTERNAL_SERVER_ERROR,
-                        format!("Unhandled internal error: {}", e),
-                    )
-                },
-            ),
-        )
-        .layer(TraceLayer::new_for_http())
-        .layer(livereload);
+    let app: Router;
+    if local_render_env.livereload {
+        warn!("Avoid using firefox while using livereload");
+        app = Router::new()
+            .nest_service(
+                "/",
+                axum::routing::get_service(ServeDir::new(Path::new("./static/"))).handle_error(
+                    |e| async move {
+                        (
+                            http::StatusCode::INTERNAL_SERVER_ERROR,
+                            format!("Unhandled internal error: {}", e),
+                        )
+                    },
+                ),
+            )
+            .layer(TraceLayer::new_for_http())
+            .layer(livereload);
+    } else {
+        app = Router::new()
+            .nest_service(
+                "/",
+                axum::routing::get_service(ServeDir::new(Path::new("./static/"))).handle_error(
+                    |e| async move {
+                        (
+                            http::StatusCode::INTERNAL_SERVER_ERROR,
+                            format!("Unhandled internal error: {}", e),
+                        )
+                    },
+                ),
+            )
+            .layer(TraceLayer::new_for_http());
+    }
     sendereloader.send(reloader).await.unwrap();
-    let address = format!("{}:{}","0.0.0.0", String::from(local_render_env.serve_port.clone()));
+    let address = format!(
+        "{}:{}",
+        "0.0.0.0",
+        String::from(local_render_env.serve_port.clone())
+    );
     axum::Server::bind(&address.parse().unwrap())
         .serve(app.into_make_service())
         .await

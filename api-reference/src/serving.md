@@ -5,7 +5,7 @@
 
 > Note : If there is somehow 2 or more markdown files that are asking to be served on the same path, the second one is served. The warning `([WARN])` does show up during processing stage.
 
-> Note : By default, the serving link for a given file is its file name, like : `/file_name`
+> Note : By default, the serving link for a given file is its file name, like : `/file_name/`
 
 You would control the serving like so : 
 ```
@@ -13,6 +13,13 @@ You would control the serving like so :
 link : "/blogs/blog2-hello-world" 
 ---
 ```
+> Important note : the server that is being used can acccess the links only if it ends with a "/", do make sure of this.
+
+## Reloading 
+
+- `sapling` comes with a cool feature, live reload! 
+- Any changes in `content`, `template` and `css` are auto detected and any browser tab that is open will be auto-reloaded! 
+- Any additions of `assets` needs a manual restart, this will soon be changed!
 
 ## Other information 
 

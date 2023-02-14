@@ -65,7 +65,7 @@ The `templates/reverseindex/tags.html` will look something like this :
             <div class="tagslist">
                tags : 
                {% for k in i.tags %}
-               <a href="/tags/{{k}}"><code>{{k}}</code></a>
+               <a href="/tags/{{k}}/"><code>{{k}}</code></a>
                {% endfor %}
             </div>
             {% endfor %}

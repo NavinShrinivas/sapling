@@ -2,7 +2,7 @@ use crate::loadMemory::LoadMemory;
 use crate::parseTemplate::ParseTemplate;
 use crate::renderMarkdown::RenderMarkdown;
 use crate::renderMarkdown::ReverseIndex;
-use log::{error, info };
+use log::{error, info};
 pub fn renderJob(local_render_env: &'static crate::RenderEnv) -> Result<(), crate::CustomError> {
     let mut content_full_data = LoadMemory::Discovered::default();
     let template_meta = match ParseTemplate::TemplatesMetaData::new(&local_render_env) {
