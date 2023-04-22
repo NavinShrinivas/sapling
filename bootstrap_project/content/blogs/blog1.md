@@ -4,7 +4,7 @@ date : "01-20-2002"
 link : "/blogs/blog1"
 author : ["P K Navin Shrinivas"]
 template : "blog.html"
-forwardindex : blog
+forwardindex : ["blog","tags"]
 reverseindex : ["author","tags"]
 tags : ["test","deep data merge"]
 ---

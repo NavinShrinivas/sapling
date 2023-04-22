@@ -67,13 +67,32 @@ fn BuildForwardIndex(
 ) {
     match &content_store.frontmatter {
         Some(fmatter) => match fmatter.get("forwardindex") {
-            Some(value) => match building_forwardindex.get_mut(value.as_str().unwrap()) {
-                Some(r) => (*r).push(content_store.frontmatter.clone().unwrap()),
-                None => {
-                    let new_vec = vec![content_store.frontmatter.clone().unwrap()];
-                    building_forwardindex.insert(value.as_str().unwrap().to_string(), new_vec);
+            Some(value) => {
+                //Forwardindex should be an array, allowing mapping frontmatters on multiple keys!
+                match value.as_sequence() {
+                    Some(forward_index_key) => {
+                        for inner_value in forward_index_key.iter() {
+                            match building_forwardindex.get_mut(inner_value.as_str().unwrap()) {
+                                Some(r) => (*r).push(content_store.frontmatter.clone().unwrap()),
+                                None => {
+                                    let new_vec = vec![content_store.frontmatter.clone().unwrap()];
+                                    building_forwardindex
+                                        .insert(inner_value.as_str().unwrap().to_string(), new_vec);
+                                }
+                            }
+                        }
+                    }
+                    None => match building_forwardindex.get_mut(value.as_str().unwrap()) {
+                        //Meaning the forward index in frontmatter only has one value with no array
+                        Some(r) => (*r).push(content_store.frontmatter.clone().unwrap()),
+                        None => {
+                            let new_vec = vec![content_store.frontmatter.clone().unwrap()];
+                            building_forwardindex
+                                .insert(value.as_str().unwrap().to_string(), new_vec);
+                        }
+                    },
                 }
-            },
+            }
             None => return,
         },
         None => return,
