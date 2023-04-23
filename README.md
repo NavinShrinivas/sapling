@@ -1,6 +1,6 @@
 ## Specification
 
-> Note : this readme is outdated (not particularly wrong). Use [pupbin.ml](http://pupbin.ml) or [this](http://nullptr.tech) alternative as the documentation.
+> Note : this readme is outdated (not particularly wrong). Use [sapling.navinshrinivas.com](https://sapling.navinshrinivas.com) as the documentation and API reference.
 
 ### Project structure 
 
