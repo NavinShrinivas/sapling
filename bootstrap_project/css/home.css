@@ -33,3 +33,16 @@
    border-bottom: none;
 }
 
+
+.tree_img{
+   width:500px;
+   height:500px;
+}
+
+@media only screen and (max-width: 768px) {
+  /* For mobile phones: */
+  .tree_img{
+    width: 100%;
+    height: auto;
+  }
+}
