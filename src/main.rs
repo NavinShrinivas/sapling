@@ -96,9 +96,11 @@ async fn main() {
         },
         _ => {
             jobWorkflows::renderWorkflow::renderJob(&local_render_env).unwrap();
-            jobWorkflows::serveAndWatchWorkflow::serve(&local_render_env)
-                .await
-                .unwrap();
+            if local_render_env.serve{
+                jobWorkflows::serveAndWatchWorkflow::serve(&local_render_env)
+                    .await
+                    .unwrap();
+            }
         }
     }
 }
