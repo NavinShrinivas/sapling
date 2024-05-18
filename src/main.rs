@@ -76,9 +76,9 @@ async fn main() {
         once_cell::sync::Lazy::new(|| RenderEnv::parse());
     let mut log_builder = Builder::new();
     log_builder.target(Target::Stdout);
-    log_builder.filter_level(LevelFilter::Info);
-    log_builder.filter_module("tower_http::trace::make_span", LevelFilter::Debug);
-    log_builder.filter_module("tower_http::trace::on_response", LevelFilter::Debug);
+    log_builder.filter_level(LevelFilter::Warn);
+    log_builder.filter_module("tower_http::trace::make_span", LevelFilter::Warn);
+    log_builder.filter_module("tower_http::trace::on_response", LevelFilter::Warn);
     log_builder.init();
     info!("Running sapling...");
     match &local_render_env.mode {
