@@ -65,8 +65,8 @@ done
 echo -e "\n"
 echo "running benchmark: $files md files and $warm warmup runs"
 echo -e "\n"
-cd /tmp/bench/11ty && hyperfine -p 'sync' -w $warm "npx @11ty/eleventy" && cd ..
-cd /tmp/bench/hugo && hyperfine -p 'sync' -w $warm "hugo" && cd .
+# cd /tmp/bench/11ty && hyperfine -p 'sync' -w $warm "npx @11ty/eleventy" && cd ..
+# cd /tmp/bench/hugo && hyperfine -p 'sync' -w $warm "hugo" && cd .
 cd /tmp/bench/saaru && hyperfine -p 'sync' -w $warm "./saaru --base-path ./docs" && cd ..
 cd /tmp/bench/sapling/benchmark && hyperfine -p 'sync' -w $warm "../../sapling run" && cd .. && cd ..
 cd /tmp/bench/anna && hyperfine -p 'sync' -w $warm "./anna" && cd ..
