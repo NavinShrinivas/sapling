@@ -17,21 +17,30 @@ use futures::future::join_all;
 use log::info;
 
 //Renders all the markdown files with their templates, copies over css and asset files.
-pub async fn parellel_static_render(
+pub async fn parallel_static_render(
     local_render_env: &RenderEnv,
     template_meta: &TemplatesMetaData,
     full_content: &LoadMemory::Discovered,
 ) -> Result<(), CustomError> {
     let mut handles: Vec<_> = Vec::new();
-    super::utils::clean_and_create_static(local_render_env).unwrap();
+    super::utils::clean_and_create_static(local_render_env).unwrap(); // Creates or clean the
+                                                                      // static directory for build
+    let parsed_templates: Vec<_> = template_meta
+        .compiled_tera_instance
+        .get_template_names()
+        .collect();
+
     for (k, v) in full_content.data.iter() {
         let path = k;
-        let content_store = v.clone();
-        let static_path = super::utils::decide_static_serve_path(&local_render_env, &content_store);
+        let static_path = super::utils::decide_static_serve_path(
+            &local_render_env,
+            &v.frontmatter.as_ref().unwrap().get("link"),
+            v.name.as_ref().unwrap(),
+        );
         match super::utils::validate_template_request(
-            &content_store.frontmatter.as_ref().unwrap(),
+            &v.frontmatter.as_ref().unwrap().get("template"),
             local_render_env,
-            &template_meta,
+            &parsed_templates,
         ) {
             Ok(template_to_use) => {
                 let job = tokio::spawn({
@@ -40,7 +49,7 @@ pub async fn parellel_static_render(
                         path, static_path, template_to_use
                     );
 
-                    let temp_context = match Context::from_serialize(&content_store) {
+                    let temp_context = match Context::from_serialize(&v) {
                         Ok(con) => con,
                         Err(e) => {
                             return Err(CustomError {
@@ -217,14 +226,23 @@ pub fn static_render(
     full_content: &LoadMemory::Discovered,
 ) -> Result<(), CustomError> {
     super::utils::clean_and_create_static(local_render_env).unwrap();
+    let parsed_templates: Vec<_> = template_meta
+        .compiled_tera_instance
+        .get_template_names()
+        .collect();
+
     for (k, v) in full_content.data.iter() {
         let path = k;
         let content_store = v.clone();
-        let static_path = super::utils::decide_static_serve_path(&local_render_env, &content_store);
+        let static_path = super::utils::decide_static_serve_path(
+            &local_render_env,
+            &v.frontmatter.as_ref().unwrap().get("link"),
+            v.name.as_ref().unwrap(),
+        );
         match super::utils::validate_template_request(
-            &content_store.frontmatter.as_ref().unwrap(),
+            &v.frontmatter.as_ref().unwrap().get("template"),
             local_render_env,
-            &template_meta,
+            &parsed_templates,
         ) {
             Ok(template_to_use) => {
                 info!(
@@ -276,10 +294,7 @@ pub fn static_render(
 
     Ok(())
 }
-fn final_render(
-    static_store: String,
-    static_path: String,
-) -> Result<(), CustomError> {
+fn final_render(static_store: String, static_path: String) -> Result<(), CustomError> {
     match std::fs::write(static_path, static_store) {
         Ok(_) => return Ok(()),
         Err(e) => {

@@ -75,7 +75,7 @@ pub async fn parelle_renderJob(local_render_env: &'static crate::RenderEnv) -> R
         }
     }
 
-    match RenderMarkdown::parellel_static_render(&local_render_env, &template_meta, &content_full_data).await {
+    match RenderMarkdown::parallel_static_render(&local_render_env, &template_meta, &content_full_data).await {
         Ok(_) => {
             info!("All markdown content rendered without errrors!")
         }
