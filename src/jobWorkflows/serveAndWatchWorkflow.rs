@@ -37,7 +37,8 @@ pub async fn change_detector(reload_handle: Reloader, local_render_env: &'static
             move |_| {
                 let start = Instant::now();
                 info!("Change detected, reloading all sessions!");
-                super::renderWorkflow::renderJob(local_render_env).unwrap();
+                //May not work at the moment, live reload broken, due to lack to async closures
+                super::renderWorkflow::parallel_renderJob(local_render_env);
                 innerreload.reload();
                 let duration = start.elapsed();
                 info!("Rerender and reloading success!");

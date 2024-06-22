@@ -32,12 +32,13 @@ pub fn parse<S: std::string::ToString>(
     let mut options = ComrakOptions::default();
     options.extension.front_matter_delimiter = Some("---".to_owned());
     options.extension.strikethrough = true;
-    options.extension.tagfilter = true;
     options.extension.table = true;
-    options.extension.autolink = true;
     options.extension.tasklist = true;
-    options.extension.superscript = true;
-    options.extension.footnotes = true;
+
+    // options.extension.autolink = true;
+    // options.extension.tagfilter = true;
+    // options.extension.superscript = true;
+    // options.extension.footnotes = true;
     let md = match fs::read_to_string(md_file_path.to_string()) {
         Ok(fd) => fd,
         Err(e) => {

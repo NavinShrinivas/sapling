@@ -7,6 +7,7 @@ use std::os::unix::fs::DirBuilderExt;
 use log::{info, warn};
 use serde_yaml::Value;
 
+
 pub fn validate_template_request(
     requested_frontmatter_template: &Option<&Value>,
     local_render_env: &RenderEnv,
