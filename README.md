@@ -1,37 +1,18 @@
-## Specification
+# Sapling = A Feature Rich Static Site Generator
 
-> Note : this readme is outdated (not particularly wrong). Use [sapling.navinshrinivas.com](https://sapling.navinshrinivas.com) as the documentation and API reference.
-
-### Project structure 
-
-- This is one place that sapling is highly Opinionated and expect a rigid structure.
-- A folder strcture as such is expected : 
-
-- [TODO] Allow changing default bases in folder structure
-
-### Serving path : 
-- The order of respecting serving paths are : 
-   - `link` tag in frontmatter
-   - file name of the markdown file in content [Note : You can have a name tag in your frontmatter]
-
-### CSS files : 
-
-- All css files need to be present in a "css" folder in the project root.
-- refrencing these css files from templates is like so : 
 ```
-<link rel="stylesheet" href="/css/index.css" />
-```
-- We minify and bundle css using [lightningcss](https://lightningcss.dev/), so anything it supports. sapling also does!
-> Note : The current way to handling css files will work only with the given rocket server or any other server that is designed to serve static files. Future releases may cover css injections.
+░██████╗░█████╗░██████╗░██╗░░░░░██╗███╗░░██╗░██████╗░
+██╔════╝██╔══██╗██╔══██╗██║░░░░░██║████╗░██║██╔════╝░
+╚█████╗░███████║██████╔╝██║░░░░░██║██╔██╗██║██║░░██╗░
+░╚═══██╗██╔══██║██╔═══╝░██║░░░░░██║██║╚████║██║░░╚██╗
+██████╔╝██║░░██║██║░░░░░███████╗██║██║░╚███║╚██████╔╝
+╚═════╝░╚═╝░░╚═╝╚═╝░░░░░╚══════╝╚═╝╚═╝░░╚══╝░╚═════╝░
 
-### Fontmatter 
-- Frontmatter is found at the starting of the file and can contain any field you wish [It's completely optional too!]. Some of the common fields are : 
-- [TODO] To allow for changes to defaults in frontmatter
+Fast light weight static site framework written in rust
 ```
----
-title : [Does not have a default value]
-template : [default is `index.html`] specifies what template to render a given markdown file using
-link : [default is the `name` tag in frontmatter] specifies where this given page must be served
-name : [default is the files name] Is related with the `link` tag
----
-```
+
+`sapling` is a SSG written in rust and can work as a fully feautured SSG. Checkout [sapling.navinshrinivas.com](https://sapling.navinshrinivas.com) for usage docs.
+
+## Todo : 
+- [ ] Reduce dependency tree 
+- [ ] reduce useless clone on the index building path

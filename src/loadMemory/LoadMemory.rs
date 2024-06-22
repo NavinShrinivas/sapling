@@ -39,9 +39,6 @@ pub async fn discover_content(
     let content_document_map: Arc<Mutex<HashMap<String, ParseMarkdown::ContentDocument>>> =
         Arc::new(Mutex::new(HashMap::new()));
 
-    //This function is split into two phases :
-    //- render md to html (done parallely)
-    //- process all parsed frontmatter (done serially)
     let mut handles: Vec<_> = Vec::new();
     let lock = Arc::new(Mutex::new(0));
     for i in content_walker.into_iter() {
@@ -114,14 +111,6 @@ fn BuildForwardIndex(
                                 .entry(inner_value.as_str().unwrap().to_string())
                                 .and_modify(|v| v.push(content_store.frontmatter.clone().unwrap()))
                                 .or_insert(vec![content_store.frontmatter.clone().unwrap()]);
-                            // match building_forwardindex.write().unwrap().get_mut(inner_value.as_str().unwrap()) {
-                            //     Some(r) => (*r).push(content_store.frontmatter.clone().unwrap()),
-                            //     None => {
-                            //         let new_vec = vec![content_store.frontmatter.clone().unwrap()];
-                            //         building_forwardindex.write().unwrap()
-                            //             .insert(inner_value.as_str().unwrap().to_string(), new_vec);
-                            //     }
-                            // }
                         }
                     }
                     None => {
@@ -131,21 +120,7 @@ fn BuildForwardIndex(
                             .entry(value.as_str().unwrap().to_string())
                             .and_modify(|v| v.push(content_store.frontmatter.clone().unwrap()))
                             .or_insert(vec![content_store.frontmatter.clone().unwrap()]);
-                    } //     match building_forwardindex
-                      //     .write()
-                      //     .unwrap()
-                      //     .get_mut(value.as_str().unwrap())
-                      // {
-                      //     //Meaning the forward index in frontmatter only has one value with no array
-                      //     Some(r) => (*r).push(content_store.frontmatter.clone().unwrap()),
-                      //     None => {
-                      //         let new_vec = vec![content_store.frontmatter.clone().unwrap()];
-                      //         building_forwardindex
-                      //             .write()
-                      //             .unwrap()
-                      //             .insert(value.as_str().unwrap().to_string(), new_vec);
-                      //     }
-                      // },
+                    } 
                 }
             }
             None => return,
@@ -196,26 +171,6 @@ fn BuildReverseIndex(
                             .or_insert(
                                 HashMap::from([(j.as_str().unwrap().to_string(), vec![inner_fm])])
                             );
-                        // match building_reverseindex
-                        //     .lock()
-                        //     .unwrap()
-                        //     .entry(i.as_str().unwrap().to_string())
-                        //     .or_insert(HashMap::new())
-                        //     .get_mut(j.as_str().unwrap())
-                        // {
-                        //     Some(matter_array) => {
-                        //         (*matter_array).push(frontmatter_clone.clone());
-                        //     }
-                        //     None => {
-                        //         let new_arr = vec![frontmatter_clone.clone()];
-                        //         building_reverseindex
-                        //             .lock()
-                        //             .unwrap()
-                        //             .get_mut(i.as_str().unwrap())
-                        //             .unwrap()
-                        //             .insert(j.as_str().unwrap().to_string(), new_arr);
-                        //     }
-                        // }
                     }
                 }
             }

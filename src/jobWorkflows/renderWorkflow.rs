@@ -53,6 +53,7 @@ use log::{error, info};
 // }
 
 pub async fn parallel_renderJob(local_render_env: &'static crate::RenderEnv) -> Result<(), crate::CustomError> {
+    //In this function, each step needs to complete before we can move forward.
     let mut content_full_data = LoadMemory::Discovered::default();
     let template_meta = match ParseTemplate::TemplatesMetaData::new(&local_render_env) {
         Ok(s) => {
