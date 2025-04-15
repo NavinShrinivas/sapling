@@ -84,30 +84,21 @@ async fn main() {
     log_builder.filter_module("tower_http::trace::make_span", LevelFilter::Warn);
     log_builder.filter_module("tower_http::trace::on_response", LevelFilter::Warn);
     log_builder.filter_level(
-        match settings
-            .get("logging"){
-                Some(map) => {
-                    match map.get("level"){
-                        Some(s) =>{
-                            match s.as_str().unwrap_or("INFO"){
-                                "OFF" => LevelFilter::Off,
-                                "TRACE" => LevelFilter::Trace,
-                                "INFO" => LevelFilter::Info,
-                                "DEBUG" => LevelFilter::Debug,
-                                "WARN" => LevelFilter::Warn,
-                                "ERROR" => LevelFilter::Error,
-                                _ => LevelFilter::Info,
-                            }
-                        },
-                        None => {
-                            LevelFilter::Info
-                        }
-                    }
-                },
-                None => {
-                    LevelFilter::Info
-                }
-            }
+        match settingYaml::settingYaml::get_inner_value(
+            &settings,
+            vec!["logging".to_string(), "level".to_string()],
+            "INFO".to_string(),
+        )
+        .as_str()
+        {
+            "OFF" => LevelFilter::Off,
+            "TRACE" => LevelFilter::Trace,
+            "INFO" => LevelFilter::Info,
+            "DEBUG" => LevelFilter::Debug,
+            "WARN" => LevelFilter::Warn,
+            "ERROR" => LevelFilter::Error,
+            _ => LevelFilter::Info,
+        },
     );
     log_builder.init();
     info!("Running sapling...");
@@ -125,7 +116,11 @@ async fn main() {
             }
         },
         _ => {
-            let generate_rss = settingYaml::settingYaml::get_inner_value(&settings, vec!["rss".to_string(), "enable".to_string()], false);
+            let generate_rss = settingYaml::settingYaml::get_inner_value(
+                &settings,
+                vec!["rss".to_string(), "enable".to_string()],
+                false,
+            );
             log::trace!("generate rss: {}", generate_rss);
             jobWorkflows::renderWorkflow::parallel_renderJob(&local_render_env)
                 .await
@@ -135,7 +130,6 @@ async fn main() {
                     .await
                     .unwrap();
             }
-
         }
     }
 }
