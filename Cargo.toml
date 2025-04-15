@@ -24,3 +24,4 @@ tower-livereload = "0.7.2"
 tower-http = { version = "0.3.5", features = ["fs","trace"] }
 tower = "0.4.13"
 futures = "0.3.30"
+rss-gen = "0.0.3"

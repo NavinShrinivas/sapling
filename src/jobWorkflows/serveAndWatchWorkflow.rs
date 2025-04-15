@@ -1,4 +1,4 @@
-use crate::{serveSite, CustomError, RenderEnv};
+use crate::{serveSite, CustomError, RenderEnv, jobWorkflows::renderWorkflow};
 use log::info;
 use notify::{Config, RecommendedWatcher, RecursiveMode, Watcher};
 use std::time::Instant;
@@ -38,7 +38,9 @@ pub async fn change_detector(reload_handle: Reloader, local_render_env: &'static
                 let start = Instant::now();
                 info!("Change detected, reloading all sessions!");
                 //May not work at the moment, live reload broken, due to lack to async closures
-                super::renderWorkflow::parallel_renderJob(local_render_env);
+                tokio::spawn(async{
+                    renderWorkflow::parallel_renderJob(local_render_env).await.unwrap();
+                });
                 innerreload.reload();
                 let duration = start.elapsed();
                 info!("Rerender and reloading success!");

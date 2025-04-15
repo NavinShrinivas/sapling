@@ -9,6 +9,7 @@ mod parseMarkdown;
 mod parseTemplate;
 mod renderMarkdown;
 mod serveSite;
+mod settingYaml;
 
 //External crates
 use clap::{Parser, Subcommand};
@@ -44,6 +45,8 @@ pub struct RenderEnv {
     content_base: String,
     #[arg(long, default_value = "static")]
     static_base: String,
+    #[arg(long, default_value = "settings.yaml")]
+    settings_yaml: String,
     #[arg(long, default_value = "css")]
     css_base: String,
     #[arg(long, default_value = "assets")]
@@ -75,10 +78,37 @@ async fn main() {
     static local_render_env: once_cell::sync::Lazy<RenderEnv> =
         once_cell::sync::Lazy::new(|| RenderEnv::parse());
     let mut log_builder = Builder::new();
+    let settings =
+        settingYaml::settingYaml::load_yaml_from_file(local_render_env.settings_yaml.as_str());
     log_builder.target(Target::Stdout);
-    log_builder.filter_level(LevelFilter::Warn);
     log_builder.filter_module("tower_http::trace::make_span", LevelFilter::Warn);
     log_builder.filter_module("tower_http::trace::on_response", LevelFilter::Warn);
+    log_builder.filter_level(
+        match settings
+            .get("logging"){
+                Some(map) => {
+                    match map.get("level"){
+                        Some(s) =>{
+                            match s.as_str().unwrap_or("INFO"){
+                                "OFF" => LevelFilter::Off,
+                                "TRACE" => LevelFilter::Trace,
+                                "INFO" => LevelFilter::Info,
+                                "DEBUG" => LevelFilter::Debug,
+                                "WARN" => LevelFilter::Warn,
+                                "ERROR" => LevelFilter::Error,
+                                _ => LevelFilter::Info,
+                            }
+                        },
+                        None => {
+                            LevelFilter::Info
+                        }
+                    }
+                },
+                None => {
+                    LevelFilter::Info
+                }
+            }
+    );
     log_builder.init();
     info!("Running sapling...");
     match &local_render_env.mode {
@@ -95,12 +125,17 @@ async fn main() {
             }
         },
         _ => {
-            jobWorkflows::renderWorkflow::parallel_renderJob(&local_render_env).await.unwrap();
-            if local_render_env.serve{
+            let generate_rss = settingYaml::settingYaml::get_inner_value(&settings, vec!["rss".to_string(), "enable".to_string()], false);
+            log::trace!("generate rss: {}", generate_rss);
+            jobWorkflows::renderWorkflow::parallel_renderJob(&local_render_env)
+                .await
+                .unwrap();
+            if local_render_env.serve {
                 jobWorkflows::serveAndWatchWorkflow::serve(&local_render_env)
                     .await
                     .unwrap();
             }
+
         }
     }
 }

@@ -1,0 +1,11 @@
+rss:
+  enable: true
+  rss_groups: 
+    - name: "All Posts"
+      url: "all.xml"
+      description: "All completed and incomplete posts"
+    - name: "Completed Posts"
+      url: "completed.xml"
+      description: "All completed posts"
+logging: 
+  level : "TRACE"
