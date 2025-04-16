@@ -3,8 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Page not found - api-reference</title>
-        <base href="/">
+        <title>Settings - api-reference</title>
 
 
         <!-- Custom HTML head -->
@@ -156,14 +155,69 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="document-not-found-404"><a class="header" href="#document-not-found-404">Document not found (404)</a></h1>
-<p>This URL is invalid, sorry. Please use the navigation bar or search to continue.</p>
+                        <h1 id="settings"><a class="header" href="#settings">Settings</a></h1>
+<p>Sapling has a bunch of defaults it usually runs in, obviously these defaults are considered <code>sane</code> for majority of the people making a need for intentional settings file <code>optional</code>. In this file, we see what all settings options sapling has and what they do.</p>
+<blockquote>
+<p><code>settings.yaml</code> is the file where all settings go, it is located in the root of your project, obviously, this is completely optional. On not finding settings.yaml, sapling throws an error, but continues to operate with defaults.</p>
+</blockquote>
+<h3 id="logging"><a class="header" href="#logging">Logging</a></h3>
+<p>Log level can be defined inside settings file, like so :</p>
+<pre><code class="language-yaml">logging: 
+    level : "DEBUG"
+</code></pre>
+<blockquote>
+<p>Note : The default log level is <code>INFO</code>.</p>
+</blockquote>
+<p>Possible <code>level</code>s are :</p>
+<ul>
+<li><code>TRACE</code> : All logs are shown</li>
+<li><code>DEBUG</code> : Debug logs are shown</li>
+<li><code>INFO</code> : Info logs are shown</li>
+<li><code>WARN</code> : Warning logs are shown</li>
+<li><code>ERROR</code> : Error logs are shown</li>
+</ul>
+<h3 id="rss"><a class="header" href="#rss">RSS</a></h3>
+<h3 id="serving"><a class="header" href="#serving">Serving</a></h3>
+<p>sapling tries to be out of your way as much as possible, sapling can be used for solely generating your static sites. But if you do please, you can have sapling serve these state files as well. This can be done in two ways :</p>
+<ul>
+<li>By providing some command line arguments [See <a href="serving.html">here</a> for command line args]</li>
+<li>Defining some settings in the <code>settings.yaml</code> file</li>
+</ul>
+<blockquote>
+<p>In the case where both are defined, command line arguments take precedence over the settings file.</p>
+</blockquote>
+<p>To define serving in the settings file, you can do so like this :</p>
+<pre><code class="language-yaml">serve: 
+    enable: true # Can be false
+    port : 8000 # Has to be valid port, else errors out
+    live-reload: true # Can be false
+</code></pre>
+<h3 id="fully-featured-example"><a class="header" href="#fully-featured-example">Fully featured example</a></h3>
+<p>Here you can find a fully featured example of a <code>settings.yaml</code> file, the same in used in the bootstrap starter site as well :</p>
+<pre><code class="language-yaml">rss:
+  enable: true
+  rss_groups: 
+    - name: "All Posts"
+      url: "all.xml"
+      description: "All completed and incomplete posts"
+    - name: "Completed Posts"
+      url: "completed.xml"
+      description: "All completed posts"
+logging: 
+  level : "TRACE"
+</code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="serving.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
 
+                            <a rel="next prefetch" href="Example.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -171,7 +225,13 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="serving.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
 
+                    <a rel="next prefetch" href="Example.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
             </nav>
 
         </div>

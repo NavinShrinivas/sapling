@@ -3,8 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Page not found - api-reference</title>
-        <base href="/">
+        <title>Installation - api-reference</title>
 
 
         <!-- Custom HTML head -->
@@ -156,14 +155,40 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="document-not-found-404"><a class="header" href="#document-not-found-404">Document not found (404)</a></h1>
-<p>This URL is invalid, sorry. Please use the navigation bar or search to continue.</p>
+                        <h1 id="installing"><a class="header" href="#installing">Installing</a></h1>
+<p>There are some pre-requisites to install the project. You need to have the following installed:</p>
+<ul>
+<li>Cargo</li>
+</ul>
+<p>To check whether you have cargo installed, run the following command in your terminal:</p>
+<pre><code class="language-bash">cargo --version
+</code></pre>
+<blockquote>
+<p>You should see something like this:</p>
+</blockquote>
+<pre><code class="language-bash">cargo 1.84.1
+</code></pre>
+<blockquote>
+<p>Note : I am trying to distribute the binary in the future, but for now, you need to have cargo installed.</p>
+</blockquote>
+<p>After making sure you have cargo installed, just run this :</p>
+<pre><code class="language-bash">bash &lt;(curl -Ls https://raw.githubusercontent.com/NavinShrinivas/sapling/refs/heads/main/install.sh)
+</code></pre>
+<p>This by default installs the latest version of <code>sapling</code> in your system. You can run the same command as above to update your sapling version as well.</p>
+<p>All version of sapling WILL be backwards compatible. So you can use the latest version of sapling without worrying about breaking you existing website.</p>
+<p>Obviously, websites generated using sapling will be backwards compatible only with the same <code>settings.yaml</code> from before as all new features if breaking will be added behind a settings flag.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="preface.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
 
+                            <a rel="next prefetch" href="Usage.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -171,7 +196,13 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="preface.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
 
+                    <a rel="next prefetch" href="Usage.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
             </nav>
 
         </div>

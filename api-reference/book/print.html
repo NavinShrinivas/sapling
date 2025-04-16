@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en" class="light" dir="ltr">
+<html lang="en" class="light sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
@@ -8,7 +8,7 @@
 
 
         <!-- Custom HTML head -->
-        
+
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
@@ -25,26 +25,29 @@
         <link rel="stylesheet" href="fonts/fonts.css">
 
         <!-- Highlight.js Stylesheets -->
-        <link rel="stylesheet" href="highlight.css">
-        <link rel="stylesheet" href="tomorrow-night.css">
-        <link rel="stylesheet" href="ayu-highlight.css">
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
 
         <!-- Custom theme stylesheets -->
 
-    </head>
-    <body class="sidebar-visible no-js">
-    <div id="body-container">
-        <!-- Provide site root to javascript -->
-        <script>
-            var path_to_root = "";
-            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
-        </script>
 
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script>
             try {
-                var theme = localStorage.getItem('mdbook-theme');
-                var sidebar = localStorage.getItem('mdbook-sidebar');
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
 
                 if (theme.startsWith('"') && theme.endsWith('"')) {
                     localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
@@ -58,24 +61,22 @@
 
         <!-- Set the theme before any content is loaded, prevents flash -->
         <script>
-            var theme;
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
-            var html = document.querySelector('html');
+            const html = document.documentElement;
             html.classList.remove('light')
             html.classList.add(theme);
-            var body = document.querySelector('body');
-            body.classList.remove('no-js')
-            body.classList.add('js');
+            html.classList.add("js");
         </script>
 
         <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var body = document.querySelector('body');
-            var sidebar = null;
-            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
                 try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
                 sidebar = sidebar || 'visible';
@@ -83,45 +84,25 @@
                 sidebar = 'hidden';
             }
             sidebar_toggle.checked = sidebar === 'visible';
-            body.classList.remove('sidebar-visible');
-            body.classList.add("sidebar-" + sidebar);
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="preface.html"><strong aria-hidden="true">1.</strong> Preface</a></li><li class="chapter-item expanded "><a href="Usage.html"><strong aria-hidden="true">2.</strong> Usage</a></li><li class="chapter-item expanded "><a href="folder_structure.html"><strong aria-hidden="true">3.</strong> Project structure</a></li><li class="chapter-item expanded "><a href="frontmatter.html"><strong aria-hidden="true">4.</strong> Frontmatter</a></li><li class="chapter-item expanded "><a href="forwardindex.html"><strong aria-hidden="true">5.</strong> Forward Index</a></li><li class="chapter-item expanded "><a href="reverseindex.html"><strong aria-hidden="true">6.</strong> Reverse Index</a></li><li class="chapter-item expanded "><a href="css.html"><strong aria-hidden="true">7.</strong> CSS</a></li><li class="chapter-item expanded "><a href="templating.html"><strong aria-hidden="true">8.</strong> Templating</a></li><li class="chapter-item expanded "><a href="serving.html"><strong aria-hidden="true">9.</strong> Serving</a></li><li class="chapter-item expanded "><a href="Example.html"><strong aria-hidden="true">10.</strong> Example project</a></li><li class="chapter-item expanded "><a href="contributors.html"><strong aria-hidden="true">11.</strong> Contributors and Credits</a></li></ol>
-            </div>
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
             </div>
         </nav>
 
-        <!-- Track and set sidebar scroll position -->
-        <script>
-            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
-            sidebarScrollbox.addEventListener('click', function(e) {
-                if (e.target.tagName === 'A') {
-                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
-                }
-            }, { passive: true });
-            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
-            sessionStorage.removeItem('sidebar-scroll');
-            if (sidebarScrollTop) {
-                // preserve sidebar scroll position when navigating via links within sidebar
-                sidebarScrollbox.scrollTop = sidebarScrollTop;
-            } else {
-                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
-                var activeSection = document.querySelector('#sidebar .active');
-                if (activeSection) {
-                    activeSection.scrollIntoView({ block: 'center' });
-                }
-            }
-        </script>
-
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
-                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar-hover-placeholder"></div>
                 <div id="menu-bar" class="menu-bar sticky">
                     <div class="left-buttons">
                         <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
@@ -131,6 +112,7 @@
                             <i class="fa fa-paint-brush"></i>
                         </button>
                         <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
                             <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
@@ -208,6 +190,28 @@ Fast light weight static site framework written in rust
 <li>deep data merge</li>
 <li>project management system</li>
 </ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="installing"><a class="header" href="#installing">Installing</a></h1>
+<p>There are some pre-requisites to install the project. You need to have the following installed:</p>
+<ul>
+<li>Cargo</li>
+</ul>
+<p>To check whether you have cargo installed, run the following command in your terminal:</p>
+<pre><code class="language-bash">cargo --version
+</code></pre>
+<blockquote>
+<p>You should see something like this:</p>
+</blockquote>
+<pre><code class="language-bash">cargo 1.84.1
+</code></pre>
+<blockquote>
+<p>Note : I am trying to distribute the binary in the future, but for now, you need to have cargo installed.</p>
+</blockquote>
+<p>After making sure you have cargo installed, just run this :</p>
+<pre><code class="language-bash">bash &lt;(curl -Ls https://raw.githubusercontent.com/NavinShrinivas/sapling/refs/heads/main/install.sh)
+</code></pre>
+<p>This by default installs the latest version of <code>sapling</code> in your system. You can run the same command as above to update your sapling version as well.</p>
+<p>All version of sapling WILL be backwards compatible. So you can use the latest version of sapling without worrying about breaking you existing website.</p>
+<p>Obviously, websites generated using sapling will be backwards compatible only with the same <code>settings.yaml</code> from before as all new features if breaking will be added behind a settings flag.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="usage"><a class="header" href="#usage">Usage</a></h1>
 <h2 id="boostrapping"><a class="header" href="#boostrapping">Boostrapping</a></h2>
 <p>The <code>sapling</code> binary can create the project structure and a new simple project. It does not serve the site by default. To bootstrap :</p>
@@ -614,6 +618,57 @@ link : "/blogs/blog2-hello-world"
 <blockquote>
 <p>It's better to always run sapling in sudo.</p>
 </blockquote>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="settings"><a class="header" href="#settings">Settings</a></h1>
+<p>Sapling has a bunch of defaults it usually runs in, obviously these defaults are considered <code>sane</code> for majority of the people making a need for intentional settings file <code>optional</code>. In this file, we see what all settings options sapling has and what they do.</p>
+<blockquote>
+<p><code>settings.yaml</code> is the file where all settings go, it is located in the root of your project, obviously, this is completely optional. On not finding settings.yaml, sapling throws an error, but continues to operate with defaults.</p>
+</blockquote>
+<h3 id="logging"><a class="header" href="#logging">Logging</a></h3>
+<p>Log level can be defined inside settings file, like so :</p>
+<pre><code class="language-yaml">logging: 
+    level : "DEBUG"
+</code></pre>
+<blockquote>
+<p>Note : The default log level is <code>INFO</code>.</p>
+</blockquote>
+<p>Possible <code>level</code>s are :</p>
+<ul>
+<li><code>TRACE</code> : All logs are shown</li>
+<li><code>DEBUG</code> : Debug logs are shown</li>
+<li><code>INFO</code> : Info logs are shown</li>
+<li><code>WARN</code> : Warning logs are shown</li>
+<li><code>ERROR</code> : Error logs are shown</li>
+</ul>
+<h3 id="rss"><a class="header" href="#rss">RSS</a></h3>
+<h3 id="serving-1"><a class="header" href="#serving-1">Serving</a></h3>
+<p>sapling tries to be out of your way as much as possible, sapling can be used for solely generating your static sites. But if you do please, you can have sapling serve these state files as well. This can be done in two ways :</p>
+<ul>
+<li>By providing some command line arguments [See <a href="serving.html">here</a> for command line args]</li>
+<li>Defining some settings in the <code>settings.yaml</code> file</li>
+</ul>
+<blockquote>
+<p>In the case where both are defined, command line arguments take precedence over the settings file.</p>
+</blockquote>
+<p>To define serving in the settings file, you can do so like this :</p>
+<pre><code class="language-yaml">serve: 
+    enable: true # Can be false
+    port : 8000 # Has to be valid port, else errors out
+    live-reload: true # Can be false
+</code></pre>
+<h3 id="fully-featured-example"><a class="header" href="#fully-featured-example">Fully featured example</a></h3>
+<p>Here you can find a fully featured example of a <code>settings.yaml</code> file, the same in used in the bootstrap starter site as well :</p>
+<pre><code class="language-yaml">rss:
+  enable: true
+  rss_groups: 
+    - name: "All Posts"
+      url: "all.xml"
+      description: "All completed and incomplete posts"
+    - name: "Completed Posts"
+      url: "completed.xml"
+      description: "All completed posts"
+logging: 
+  level : "TRACE"
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="example-project"><a class="header" href="#example-project">Example Project</a></h1>
 <p>Covering an entire project in documentation is hard, but fret not. the <code>bootstrap_project</code> in <code>sapling</code> GitHub repo acts as the perfect example to learn from.</p>
 <p><a href="https://github.com/sapling/bootstrap_project/">Example project</a></p>

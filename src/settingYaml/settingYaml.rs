@@ -7,7 +7,8 @@ pub fn load_yaml_from_file(yaml_path: &str) -> HashMap<String, Value> {
         Ok(s) => s,
         Err(e) => {
             log::error!("Error reading yaml settings file : {} ", e);
-            panic!();
+            log::info!("Continuing with defaults");
+            return HashMap::new();
         }
     };
 
@@ -16,7 +17,8 @@ pub fn load_yaml_from_file(yaml_path: &str) -> HashMap<String, Value> {
             Ok(s) => s,
             Err(e) => {
                 log::error!("Error parsing settings yaml file : {}", e);
-                panic!();
+                log::info!("Continuing with defaults...");
+                return HashMap::new();
             }
         };
     return settings;
