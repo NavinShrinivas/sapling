@@ -191,7 +191,7 @@ pub fn render_rss(
         };
 
         let mut rss_data: RssData = RssData::new(Some(RssVersion::RSS2_0))
-            .title(key.to_string())
+            .title(&rss_group.name)
             .link(&rss_group.content_url)
             .description(&rss_group.description)
             .pub_date(Utc::now().format("%a, %d %b %Y %H:%M:%S GMT").to_string())
