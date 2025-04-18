@@ -38,11 +38,17 @@ pub async fn parallel_static_render(
             v.name.as_ref().unwrap(),
         );
         //need to inject the decided path into frontmatter (for use by rss later or something else)
-        if let Some(f) = (*v).frontmatter.as_mut(){
-            f["link"] = serde_yaml::Value::String(static_path.clone());
-        } else {
-            v.frontmatter = Some(serde_yaml::Value::Mapping(serde_yaml::Mapping::new()));
-            v.frontmatter.as_mut().unwrap()["link"] = serde_yaml::Value::String(static_path.clone());
+        match &v.frontmatter.as_ref().unwrap().get("link") {
+            Some(serde_yaml::Value::String(_)) => {}
+            _ => {
+                if let Some(f) = (*v).frontmatter.as_mut() {
+                    f["link"] = serde_yaml::Value::String(v.name.as_ref().unwrap().to_string());
+                } else {
+                    v.frontmatter = Some(serde_yaml::Value::Mapping(serde_yaml::Mapping::new()));
+                    v.frontmatter.as_mut().unwrap()["link"] =
+                        serde_yaml::Value::String(v.name.as_ref().unwrap().to_string());
+                }
+            }
         }
 
         match super::utils::validate_template_request(
