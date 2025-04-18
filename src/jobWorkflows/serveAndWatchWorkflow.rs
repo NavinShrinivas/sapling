@@ -5,7 +5,7 @@ use std::time::Instant;
 use std::{path::Path, sync::Arc};
 use tokio::sync::mpsc::{self, Receiver, Sender};
 use tower_livereload::Reloader;
-pub async fn serve(local_render_env: &'static RenderEnv) -> Result<(), CustomError> {
+pub async fn serve(local_render_env: &'static RenderEnv, settings : &'static std::collections::HashMap<String, serde_yaml::value::Value>) -> Result<(), CustomError> {
     ctrlc::set_handler(move || {
         info!("received Ctrl+C!");
         std::process::exit(0);
@@ -22,14 +22,14 @@ pub async fn serve(local_render_env: &'static RenderEnv) -> Result<(), CustomErr
     });
     let reload_handle = tx.recv().await.unwrap();
     tokio::spawn(async {
-        change_detector(reload_handle, local_render_env).await;
+        change_detector(reload_handle, local_render_env, settings).await;
     })
     .await
     .unwrap();
     Ok(())
 }
 
-pub async fn change_detector(reload_handle: Reloader, local_render_env: &'static RenderEnv) {
+pub async fn change_detector(reload_handle: Reloader, local_render_env: &'static RenderEnv, settings : &'static std::collections::HashMap<String, serde_yaml::value::Value>) {
     let reloadarc = Arc::new(reload_handle);
     loop {
         let innerreload = Arc::clone(&reloadarc);
@@ -39,7 +39,7 @@ pub async fn change_detector(reload_handle: Reloader, local_render_env: &'static
                 info!("Change detected, reloading all sessions!");
                 //May not work at the moment, live reload broken, due to lack to async closures
                 tokio::spawn(async{
-                    renderWorkflow::parallel_renderJob(local_render_env).await.unwrap();
+                    renderWorkflow::parallel_renderJob(local_render_env, settings).await.unwrap();
                 });
                 innerreload.reload();
                 let duration = start.elapsed();

@@ -8,6 +8,7 @@ mod loadMemory;
 mod parseMarkdown;
 mod parseTemplate;
 mod renderMarkdown;
+mod rss;
 mod serveSite;
 mod settingYaml;
 
@@ -19,6 +20,8 @@ use tokio;
 
 //[PENDING] Refactor to workflows
 use bootstrap::Bootstrap;
+
+use std::collections::HashMap;
 
 #[derive(Debug)]
 pub enum CustomErrorStage {
@@ -78,8 +81,10 @@ async fn main() {
     static local_render_env: once_cell::sync::Lazy<RenderEnv> =
         once_cell::sync::Lazy::new(|| RenderEnv::parse());
     let mut log_builder = Builder::new();
-    let settings =
-        settingYaml::settingYaml::load_yaml_from_file(local_render_env.settings_yaml.as_str());
+    static settings: once_cell::sync::Lazy<HashMap<std::string::String, serde_yaml::Value>> =
+        once_cell::sync::Lazy::new(|| {
+            settingYaml::settingYaml::load_yaml_from_file(local_render_env.settings_yaml.as_str())
+        });
     log_builder.target(Target::Stdout);
     log_builder.filter_module("tower_http::trace::make_span", LevelFilter::Warn);
     log_builder.filter_module("tower_http::trace::on_response", LevelFilter::Warn);
@@ -122,11 +127,11 @@ async fn main() {
                 false,
             );
             log::trace!("generate rss: {}", generate_rss);
-            jobWorkflows::renderWorkflow::parallel_renderJob(&local_render_env)
+            jobWorkflows::renderWorkflow::parallel_renderJob(&local_render_env, &settings)
                 .await
                 .unwrap();
             if local_render_env.serve {
-                jobWorkflows::serveAndWatchWorkflow::serve(&local_render_env)
+                jobWorkflows::serveAndWatchWorkflow::serve(&local_render_env, &settings)
                     .await
                     .unwrap();
             }

@@ -1,11 +1,16 @@
 rss:
   enable: true
+  date_format: '%m-%d-%Y'
   rss_groups: 
     - name: "All Posts"
-      url: "all.xml"
+      group_id: "all"
+      link: "rss/all.xml"
+      content_url: "https://sapling.navinshrinivas.com/"
       description: "All completed and incomplete posts"
     - name: "Completed Posts"
-      url: "completed.xml"
+      group_id: "completed"
+      link: "rss/completed.xml"
       description: "All completed posts"
+      content_url: "https://sapling.navinshrinivas.com/"
 logging: 
   level : "TRACE"

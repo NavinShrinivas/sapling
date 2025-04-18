@@ -30,6 +30,7 @@ pub fn validate_template_request(
     }
 }
 
+
 pub fn decide_static_serve_path(
     local_render_env: &RenderEnv,
     requested_frontmatter_serve_path : &Option<&Value>,

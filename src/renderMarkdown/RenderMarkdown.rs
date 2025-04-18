@@ -20,7 +20,7 @@ use log::info;
 pub async fn parallel_static_render(
     local_render_env: &RenderEnv,
     template_meta: &TemplatesMetaData,
-    full_content: &LoadMemory::Discovered,
+    full_content: &mut LoadMemory::Discovered,
 ) -> Result<(), CustomError> {
     let mut handles: Vec<_> = Vec::new();
     super::utils::clean_and_create_static(local_render_env).unwrap(); // Creates or clean the
@@ -30,13 +30,21 @@ pub async fn parallel_static_render(
         .get_template_names()
         .collect();
 
-    for (k, v) in full_content.data.iter() {
+    for (k, v) in full_content.data.iter_mut() {
         let path = k;
         let static_path = super::utils::decide_static_serve_path(
             &local_render_env,
             &v.frontmatter.as_ref().unwrap().get("link"),
             v.name.as_ref().unwrap(),
         );
+        //need to inject the decided path into frontmatter (for use by rss later or something else)
+        if let Some(f) = (*v).frontmatter.as_mut(){
+            f["link"] = serde_yaml::Value::String(static_path.clone());
+        } else {
+            v.frontmatter = Some(serde_yaml::Value::Mapping(serde_yaml::Mapping::new()));
+            v.frontmatter.as_mut().unwrap()["link"] = serde_yaml::Value::String(static_path.clone());
+        }
+
         match super::utils::validate_template_request(
             &v.frontmatter.as_ref().unwrap().get("template"),
             local_render_env,
@@ -294,7 +302,8 @@ pub fn static_render(
 
     Ok(())
 }
-fn final_render(static_store: String, static_path: String) -> Result<(), CustomError> {
+pub fn final_render(static_store: String, static_path: String) -> Result<(), CustomError> {
+    log::info!("writing to : {}", static_path);
     match std::fs::write(static_path, static_store) {
         Ok(_) => return Ok(()),
         Err(e) => {

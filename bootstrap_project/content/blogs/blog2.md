@@ -1,13 +1,13 @@
 ---
-title : "First blog testing Markdown elements"
+title : "Second blog testing Markdown elements"
 date : "01-20-2002"
-link : "/blogs/blog1"
-author : ["P K Navin Shrinivas"]
+author : "P K Navin Shrinivas"
 template : "blog.html"
 forwardindex : ["blog","tags"]
-reverseindex : ["author","tags"]
 tags : ["test","deep data merge"]
-rss_group: "all"
+rss_group: 
+    - "all"
+    - "completed"
 ---
 
 # You are seeing a test blog
