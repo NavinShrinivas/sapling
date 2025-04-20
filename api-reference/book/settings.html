@@ -177,21 +177,42 @@
 <li><code>ERROR</code> : Error logs are shown</li>
 </ul>
 <h3 id="rss"><a class="header" href="#rss">RSS</a></h3>
-<h3 id="serving"><a class="header" href="#serving">Serving</a></h3>
-<p>sapling tries to be out of your way as much as possible, sapling can be used for solely generating your static sites. But if you do please, you can have sapling serve these state files as well. This can be done in two ways :</p>
-<ul>
-<li>By providing some command line arguments [See <a href="serving.html">here</a> for command line args]</li>
-<li>Defining some settings in the <code>settings.yaml</code> file</li>
-</ul>
-<blockquote>
-<p>In the case where both are defined, command line arguments take precedence over the settings file.</p>
-</blockquote>
-<p>To define serving in the settings file, you can do so like this :</p>
-<pre><code class="language-yaml">serve: 
-    enable: true # Can be false
-    port : 8000 # Has to be valid port, else errors out
-    live-reload: true # Can be false
+<p>Sapling has built in support to generate RSS feeds for your sites. It's structure agnostic, meaning, it doesn't care where your markdown content are present. To enable said RSS, do so in settings :</p>
+<pre><code class="language-yaml">rss:
+  enable: true
+  date_format: '%m-%d-%Y' #Optional - default is %m-%d-Y | This is used to parse the dates found in frontmatter of each markdown
+  rss_groups: 
+    - name: "All Posts" # Compulsory - this is the name of the group, used to identify the group
+      group_id: "all" # Compulsory - this is the id of the group, used to identify the group
+      link: "rss/all.xml" # Compulsory - this is the path where the rss will be generated
+      content_url: "https://sapling.navinshrinivas.com/" # Compulsory - this is the url of the content, used to generate the rss
+      description: "All completed and incomplete posts" #Optional
+    - name: "Completed Posts"
+      group_id: "completed"
+      link: "rss/completed.xml"
+      description: "All completed posts"
+      content_url: "https://sapling.navinshrinivas.com/"
 </code></pre>
+<p>You should find the RSS feeds in the following links for the above example :</p>
+<ul>
+<li>/rss/all.xml</li>
+<li>/rss/completed.xml</li>
+</ul>
+<p>To see how to include markdown <code>content</code> files into RSS, check <a href="/RSS.html">RSS</a> page.</p>
+<h3 id="serving"><a class="header" href="#serving">Serving</a></h3>
+<!-- sapling tries to be out of your way as much as possible, sapling can be used for solely generating your static sites. But if you do please, you can have sapling serve these state files as well. This can be done in two ways : -->
+<!-- - By providing some command line arguments [See [here](serving.md) for command line args] -->
+<!-- - Defining some settings in the `settings.yaml` file -->
+<!-- > In the case where both are defined, command line arguments take precedence over the settings file. -->
+<!---->
+<!-- To define serving in the settings file, you can do so like this :  -->
+<!-- ```yaml -->
+<!-- serve:  -->
+<!--     enable: true # Can be false -->
+<!--     port : 8000 # Has to be valid port, else errors out -->
+<!--     live-reload: true # Can be false -->
+<!-- ``` -->
+<p>[TODO: Feature Under Construction]</p>
 <h3 id="fully-featured-example"><a class="header" href="#fully-featured-example">Fully featured example</a></h3>
 <p>Here you can find a fully featured example of a <code>settings.yaml</code> file, the same in used in the bootstrap starter site as well :</p>
 <pre><code class="language-yaml">rss:
@@ -211,11 +232,11 @@ logging:
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="serving.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="Usage.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="Example.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="folder_structure.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -225,11 +246,11 @@ logging:
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="serving.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="Usage.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="Example.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="folder_structure.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

@@ -25,3 +25,4 @@ Following are the projects that sapling is highly dependent on :
 - comrak
 - rocket 
 - tokio
+- [rss_gen](https://github.com/sebastienrousseau/rssgen)

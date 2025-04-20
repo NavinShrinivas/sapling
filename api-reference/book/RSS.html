@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Example project - api-reference</title>
+        <title>RSS - api-reference</title>
 
 
         <!-- Custom HTML head -->
@@ -155,19 +155,45 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="example-project"><a class="header" href="#example-project">Example Project</a></h1>
-<p>Covering an entire project in documentation is hard, but fret not. the <code>bootstrap_project</code> in <code>sapling</code> GitHub repo acts as the perfect example to learn from.</p>
-<p><a href="https://github.com/sapling/bootstrap_project/">Example project</a></p>
+                        <h1 id="rss---really-simple-syndication"><a class="header" href="#rss---really-simple-syndication">RSS - Really Simple Syndication</a></h1>
+<p>Is a standardised way that websites can provide their content. Given that a large number of sites provide RSS feeds, a single app should be enough for users to read content from multiple sources as long as each of the source provides a RSS feed.</p>
+<blockquote>
+<p>To know how to enable RSS in your sapling site, check the <a href="/settings.html">Settings</a> page.</p>
+</blockquote>
+<p>Once RSS is enabled in settings, sapling will generate one feed for each of the defined groups in the settings (as long as there is at least one markdown content file tagged to that group).</p>
+<h2 id="tagging-content-to-rss-groups-"><a class="header" href="#tagging-content-to-rss-groups-">Tagging content to RSS groups :</a></h2>
+<p>A single markdown content file can be tagged to multiple groups. To do so, you can add the following to the frontmatter of your markdown content file, your frontmattrer will look something like this (look at the <code>rss_group</code> key) :</p>
+<pre><code class="language-yaml">---
+title : "Second blog testing Markdown elements"
+date : "01-20-2002"
+author : "P K Navin Shrinivas"
+template : "blog.html"
+forwardindex : ["blog","tags"]
+tags : ["test","deep data merge"]
+rss_group: ["all","completed"]
+---
+</code></pre>
+<p>For tagging it to a single group, you can do so like this :</p>
+<pre><code class="language-yaml">---
+title : "Second blog testing Markdown elements"
+date : "01-20-2002"
+author : "P K Navin Shrinivas"
+template : "blog.html"
+forwardindex : ["blog","tags"]
+tags : ["test","deep data merge"]
+rss_group: "all"
+---
+</code></pre>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="serving.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="templating.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="contributors.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="serving.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -177,11 +203,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="serving.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="templating.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="contributors.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="serving.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

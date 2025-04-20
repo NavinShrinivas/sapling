@@ -227,6 +227,78 @@ Fast light weight static site framework written in rust
 <blockquote>
 <p>Note : there are a lot of other options and optional command line arugment, so <code>sapling help</code> to see them.</p>
 </blockquote>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="settings"><a class="header" href="#settings">Settings</a></h1>
+<p>Sapling has a bunch of defaults it usually runs in, obviously these defaults are considered <code>sane</code> for majority of the people making a need for intentional settings file <code>optional</code>. In this file, we see what all settings options sapling has and what they do.</p>
+<blockquote>
+<p><code>settings.yaml</code> is the file where all settings go, it is located in the root of your project, obviously, this is completely optional. On not finding settings.yaml, sapling throws an error, but continues to operate with defaults.</p>
+</blockquote>
+<h3 id="logging"><a class="header" href="#logging">Logging</a></h3>
+<p>Log level can be defined inside settings file, like so :</p>
+<pre><code class="language-yaml">logging: 
+    level : "DEBUG"
+</code></pre>
+<blockquote>
+<p>Note : The default log level is <code>INFO</code>.</p>
+</blockquote>
+<p>Possible <code>level</code>s are :</p>
+<ul>
+<li><code>TRACE</code> : All logs are shown</li>
+<li><code>DEBUG</code> : Debug logs are shown</li>
+<li><code>INFO</code> : Info logs are shown</li>
+<li><code>WARN</code> : Warning logs are shown</li>
+<li><code>ERROR</code> : Error logs are shown</li>
+</ul>
+<h3 id="rss"><a class="header" href="#rss">RSS</a></h3>
+<p>Sapling has built in support to generate RSS feeds for your sites. It's structure agnostic, meaning, it doesn't care where your markdown content are present. To enable said RSS, do so in settings :</p>
+<pre><code class="language-yaml">rss:
+  enable: true
+  date_format: '%m-%d-%Y' #Optional - default is %m-%d-Y | This is used to parse the dates found in frontmatter of each markdown
+  rss_groups: 
+    - name: "All Posts" # Compulsory - this is the name of the group, used to identify the group
+      group_id: "all" # Compulsory - this is the id of the group, used to identify the group
+      link: "rss/all.xml" # Compulsory - this is the path where the rss will be generated
+      content_url: "https://sapling.navinshrinivas.com/" # Compulsory - this is the url of the content, used to generate the rss
+      description: "All completed and incomplete posts" #Optional
+    - name: "Completed Posts"
+      group_id: "completed"
+      link: "rss/completed.xml"
+      description: "All completed posts"
+      content_url: "https://sapling.navinshrinivas.com/"
+</code></pre>
+<p>You should find the RSS feeds in the following links for the above example :</p>
+<ul>
+<li>/rss/all.xml</li>
+<li>/rss/completed.xml</li>
+</ul>
+<p>To see how to include markdown <code>content</code> files into RSS, check <a href="/RSS.html">RSS</a> page.</p>
+<h3 id="serving"><a class="header" href="#serving">Serving</a></h3>
+<!-- sapling tries to be out of your way as much as possible, sapling can be used for solely generating your static sites. But if you do please, you can have sapling serve these state files as well. This can be done in two ways : -->
+<!-- - By providing some command line arguments [See [here](serving.md) for command line args] -->
+<!-- - Defining some settings in the `settings.yaml` file -->
+<!-- > In the case where both are defined, command line arguments take precedence over the settings file. -->
+<!---->
+<!-- To define serving in the settings file, you can do so like this :  -->
+<!-- ```yaml -->
+<!-- serve:  -->
+<!--     enable: true # Can be false -->
+<!--     port : 8000 # Has to be valid port, else errors out -->
+<!--     live-reload: true # Can be false -->
+<!-- ``` -->
+<p>[TODO: Feature Under Construction]</p>
+<h3 id="fully-featured-example"><a class="header" href="#fully-featured-example">Fully featured example</a></h3>
+<p>Here you can find a fully featured example of a <code>settings.yaml</code> file, the same in used in the bootstrap starter site as well :</p>
+<pre><code class="language-yaml">rss:
+  enable: true
+  rss_groups: 
+    - name: "All Posts"
+      url: "all.xml"
+      description: "All completed and incomplete posts"
+    - name: "Completed Posts"
+      url: "completed.xml"
+      description: "All completed posts"
+logging: 
+  level : "TRACE"
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="folder-structure"><a class="header" href="#folder-structure">Folder structure</a></h1>
 <p>This is one of those places where <code>sapling</code> is very rigid and opinionated. As of now, the folder names are rigid, in the upcoming releases this is bound to change.</p>
 <h2 id="basic-structure"><a class="header" href="#basic-structure">Basic structure</a></h2>
@@ -587,7 +659,36 @@ authors : [Navin, Sapling]
    &lt;/ul&gt;
 &lt;/div&gt;
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="serving"><a class="header" href="#serving">Serving</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="rss---really-simple-syndication"><a class="header" href="#rss---really-simple-syndication">RSS - Really Simple Syndication</a></h1>
+<p>Is a standardised way that websites can provide their content. Given that a large number of sites provide RSS feeds, a single app should be enough for users to read content from multiple sources as long as each of the source provides a RSS feed.</p>
+<blockquote>
+<p>To know how to enable RSS in your sapling site, check the <a href="/settings.html">Settings</a> page.</p>
+</blockquote>
+<p>Once RSS is enabled in settings, sapling will generate one feed for each of the defined groups in the settings (as long as there is at least one markdown content file tagged to that group).</p>
+<h2 id="tagging-content-to-rss-groups-"><a class="header" href="#tagging-content-to-rss-groups-">Tagging content to RSS groups :</a></h2>
+<p>A single markdown content file can be tagged to multiple groups. To do so, you can add the following to the frontmatter of your markdown content file, your frontmattrer will look something like this (look at the <code>rss_group</code> key) :</p>
+<pre><code class="language-yaml">---
+title : "Second blog testing Markdown elements"
+date : "01-20-2002"
+author : "P K Navin Shrinivas"
+template : "blog.html"
+forwardindex : ["blog","tags"]
+tags : ["test","deep data merge"]
+rss_group: ["all","completed"]
+---
+</code></pre>
+<p>For tagging it to a single group, you can do so like this :</p>
+<pre><code class="language-yaml">---
+title : "Second blog testing Markdown elements"
+date : "01-20-2002"
+author : "P K Navin Shrinivas"
+template : "blog.html"
+forwardindex : ["blog","tags"]
+tags : ["test","deep data merge"]
+rss_group: "all"
+---
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="serving-1"><a class="header" href="#serving-1">Serving</a></h1>
 <p><code>sapling</code> uses rocket to serve the static files. What's different here is that you can control the url where a given markdown file gets served. This can be done using the <code>link</code> tag in the frontmatter.</p>
 <h2 id="serving-link-handling-using-frontmatter"><a class="header" href="#serving-link-handling-using-frontmatter">Serving link handling using frontmatter</a></h2>
 <blockquote>
@@ -618,57 +719,6 @@ link : "/blogs/blog2-hello-world"
 <blockquote>
 <p>It's better to always run sapling in sudo.</p>
 </blockquote>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="settings"><a class="header" href="#settings">Settings</a></h1>
-<p>Sapling has a bunch of defaults it usually runs in, obviously these defaults are considered <code>sane</code> for majority of the people making a need for intentional settings file <code>optional</code>. In this file, we see what all settings options sapling has and what they do.</p>
-<blockquote>
-<p><code>settings.yaml</code> is the file where all settings go, it is located in the root of your project, obviously, this is completely optional. On not finding settings.yaml, sapling throws an error, but continues to operate with defaults.</p>
-</blockquote>
-<h3 id="logging"><a class="header" href="#logging">Logging</a></h3>
-<p>Log level can be defined inside settings file, like so :</p>
-<pre><code class="language-yaml">logging: 
-    level : "DEBUG"
-</code></pre>
-<blockquote>
-<p>Note : The default log level is <code>INFO</code>.</p>
-</blockquote>
-<p>Possible <code>level</code>s are :</p>
-<ul>
-<li><code>TRACE</code> : All logs are shown</li>
-<li><code>DEBUG</code> : Debug logs are shown</li>
-<li><code>INFO</code> : Info logs are shown</li>
-<li><code>WARN</code> : Warning logs are shown</li>
-<li><code>ERROR</code> : Error logs are shown</li>
-</ul>
-<h3 id="rss"><a class="header" href="#rss">RSS</a></h3>
-<h3 id="serving-1"><a class="header" href="#serving-1">Serving</a></h3>
-<p>sapling tries to be out of your way as much as possible, sapling can be used for solely generating your static sites. But if you do please, you can have sapling serve these state files as well. This can be done in two ways :</p>
-<ul>
-<li>By providing some command line arguments [See <a href="serving.html">here</a> for command line args]</li>
-<li>Defining some settings in the <code>settings.yaml</code> file</li>
-</ul>
-<blockquote>
-<p>In the case where both are defined, command line arguments take precedence over the settings file.</p>
-</blockquote>
-<p>To define serving in the settings file, you can do so like this :</p>
-<pre><code class="language-yaml">serve: 
-    enable: true # Can be false
-    port : 8000 # Has to be valid port, else errors out
-    live-reload: true # Can be false
-</code></pre>
-<h3 id="fully-featured-example"><a class="header" href="#fully-featured-example">Fully featured example</a></h3>
-<p>Here you can find a fully featured example of a <code>settings.yaml</code> file, the same in used in the bootstrap starter site as well :</p>
-<pre><code class="language-yaml">rss:
-  enable: true
-  rss_groups: 
-    - name: "All Posts"
-      url: "all.xml"
-      description: "All completed and incomplete posts"
-    - name: "Completed Posts"
-      url: "completed.xml"
-      description: "All completed posts"
-logging: 
-  level : "TRACE"
-</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="example-project"><a class="header" href="#example-project">Example Project</a></h1>
 <p>Covering an entire project in documentation is hard, but fret not. the <code>bootstrap_project</code> in <code>sapling</code> GitHub repo acts as the perfect example to learn from.</p>
 <p><a href="https://github.com/sapling/bootstrap_project/">Example project</a></p>
@@ -695,6 +745,7 @@ If you do <code>cargo run -- --serve --serve-port 8000 run</code>. Inside the bo
 <li>comrak</li>
 <li>rocket</li>
 <li>tokio</li>
+<li><a href="https://github.com/sebastienrousseau/rssgen">rss_gen</a></li>
 </ul>
 
                     </main>
