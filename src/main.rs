@@ -39,7 +39,7 @@ pub struct CustomError {
 
 #[derive(Parser)]
 #[command(name = "sapling")]
-#[command(version = "1.0")]
+#[command(version = "1.0.1")]
 #[command(about = "Static site generator", long_about = None)]
 pub struct RenderEnv {
     #[arg(long, default_value = "templates")]
