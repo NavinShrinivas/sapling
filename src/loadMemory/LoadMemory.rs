@@ -3,6 +3,7 @@ use futures::future::join_all;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use walkdir::WalkDir;
+use crate::parseMarkdown::ParseMarkdown::MDRenderOptions;
 
 //Functions in this files are among the costliest functions in the project and
 //definetly need a refactor in the near future
@@ -25,6 +26,7 @@ impl Default for Discovered {
 }
 
 pub async fn discover_content(
+    md_render_config: MDRenderOptions,
     local_render_env: &RenderEnv,
     content_full_data: &mut Discovered,
 ) -> Result<Arc<RwLock<HashMap<String, HashMap<String, Vec<serde_yaml::value::Value>>>>>, CustomError>
@@ -38,6 +40,8 @@ pub async fn discover_content(
 
     let content_document_map: Arc<Mutex<HashMap<String, ParseMarkdown::ContentDocument>>> =
         Arc::new(Mutex::new(HashMap::new()));
+
+    let md_render_config = Arc::new(md_render_config);
 
     let mut handles: Vec<_> = Vec::new();
     let lock = Arc::new(Mutex::new(0));
@@ -56,11 +60,12 @@ pub async fn discover_content(
         let local_fi = Arc::clone(&building_forwardindex);
         let local_ri = Arc::clone(&building_reverseindex);
         let local_cdm = Arc::clone(&content_document_map);
+        let local_md_render_config = Arc::clone(&md_render_config);
 
         if entry.path().is_file() {
             let job = tokio::spawn(async move {
                 let path = entry.path();
-                let content_store = match ParseMarkdown::parse(&path.display()) {
+                let content_store = match ParseMarkdown::parse(&local_md_render_config, &path.display()) {
                     Ok(content) => content.unwrap(), //unwrap is fine
                     Err(e) => return Err(e),
                 };

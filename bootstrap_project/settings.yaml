@@ -12,5 +12,7 @@ rss:
       link: "rss/completed.xml"
       description: "All completed posts"
       content_url: "https://sapling.navinshrinivas.com/"
+render: 
+  unsafe_render: true
 logging: 
   level : "TRACE"

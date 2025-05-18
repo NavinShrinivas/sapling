@@ -26,7 +26,23 @@ impl ContentDocument {
     }
 }
 
+//Represents the Markdown render options in the config file
+#[derive(Serialize, Deserialize, Debug)]
+pub struct MDRenderOptions {
+    pub unsafe_render: bool,
+}
+
+impl Default for MDRenderOptions {
+    fn default() -> Self {
+        MDRenderOptions {
+            unsafe_render: false,
+        }
+    }
+}
+
+
 pub fn parse<S: std::string::ToString>(
+    md_render_config : &MDRenderOptions,
     md_file_path: &S,
 ) -> Result<Option<ContentDocument>, CustomError> {
     let mut options = ComrakOptions::default();
@@ -34,6 +50,7 @@ pub fn parse<S: std::string::ToString>(
     options.extension.strikethrough = true;
     options.extension.table = true;
     options.extension.tasklist = true;
+    options.render.unsafe_ = md_render_config.unsafe_render;
 
     // options.extension.autolink = true;
     // options.extension.tagfilter = true;

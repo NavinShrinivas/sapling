@@ -22,7 +22,13 @@ pub async fn parallel_renderJob(
         }
     };
     let outer_rindex;
-    match LoadMemory::discover_content(&local_render_env, &mut content_full_data).await {
+    let render_md = crate::settingYaml::settingYaml::get_inner_value(
+        settings,
+        vec!["render".to_string()],
+        crate::parseMarkdown::ParseMarkdown::MDRenderOptions::default(),
+    );
+    log::debug!("Render options : {:?}", render_md);
+    match LoadMemory::discover_content(render_md, &local_render_env, &mut content_full_data).await {
         Ok(reverseindex) => {
             info!("Detected all possible content (Markdown) file.");
             outer_rindex = reverseindex;
