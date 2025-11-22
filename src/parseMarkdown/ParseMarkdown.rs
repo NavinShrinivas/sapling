@@ -1,10 +1,10 @@
 #[allow(dead_code)]
 #[allow(non_snake_case)]
 use crate::{CustomError, CustomErrorStage};
-use comrak::{format_html, nodes::NodeValue, parse_document, Arena, ComrakOptions};
+use comrak::{format_html, nodes::NodeValue, parse_document, Arena, Options};
 use log::warn;
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, fs, path::Path};
+use std::{collections::HashMap, fmt::Write, fs, path::Path};
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ContentDocument {
     pub frontmatter_raw: Option<String>,
@@ -45,14 +45,14 @@ pub fn parse<S: std::string::ToString>(
     md_render_config : &MDRenderOptions,
     md_file_path: &S,
 ) -> Result<Option<ContentDocument>, CustomError> {
-    let mut options = ComrakOptions::default();
+    let mut options = Options::default();
     options.extension.front_matter_delimiter = Some("---".to_owned());
     options.extension.strikethrough = true;
     options.extension.table = true;
     options.extension.tasklist = true;
-    options.render.unsafe_ = md_render_config.unsafe_render;
-
-    // options.extension.autolink = true;
+    options.render.r#unsafe = md_render_config.unsafe_render;
+    options.extension.math_code = true;
+    options.extension.math_dollars = true;
     // options.extension.tagfilter = true;
     // options.extension.superscript = true;
     // options.extension.footnotes = true;
@@ -89,7 +89,7 @@ pub fn parse<S: std::string::ToString>(
         Some(matter) => match &matter.data.borrow().value {
             //RefCells need borrow
             NodeValue::FrontMatter(text_vec) => {
-                let matter_string = match String::from_utf8(text_vec.to_vec()) {
+                let matter_string = match String::from_utf8(text_vec.as_bytes().to_vec()) {
                     Ok(s) => s,
                     Err(e) => {
                         return Err(CustomError {
@@ -150,7 +150,7 @@ pub fn parse<S: std::string::ToString>(
     //templates default is handled in seperate places
 
     //parsing to html
-    let mut html = vec![];
+    let mut html : String = String::new();
     match format_html(root, &options, &mut html) {
         Ok(_) => {}
         Err(e) => {
@@ -164,14 +164,6 @@ pub fn parse<S: std::string::ToString>(
             })
         }
     };
-    content_doc.content = Some(match String::from_utf8(html){
-        Ok(v) => v,
-        Err(_) => {
-            return Err(CustomError{
-                stage : CustomErrorStage::ParseMarkdown,
-                error : format!("[ERROR] Error formning string from parsed html vector, possibly bad encoding or illegal charecters. Please stick to utf-8")
-            })
-        }
-    });
+    content_doc.content = Some(html);
     Ok(Some(content_doc))
 }
