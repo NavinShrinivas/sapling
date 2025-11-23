@@ -51,8 +51,8 @@ pub fn parse<S: std::string::ToString>(
     options.extension.table = true;
     options.extension.tasklist = true;
     options.render.r#unsafe = md_render_config.unsafe_render;
-    options.extension.math_code = true;
-    options.extension.math_dollars = true;
+    // options.extension.math_code = true;
+    // options.extension.math_dollars = true;
     // options.extension.tagfilter = true;
     // options.extension.superscript = true;
     // options.extension.footnotes = true;
