@@ -61,7 +61,7 @@ pub async fn change_detector(
                     .await;
                 tx.send(result).unwrap();
             });
-            info!("waiting");
+            sleep(Duration::from_secs(1));
             let _ = rx.recv().unwrap();// waiting for above task to finish
             innerreload.reload();
             let duration = start.elapsed();
