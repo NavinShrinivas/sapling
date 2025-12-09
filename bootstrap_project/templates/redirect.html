@@ -1,7 +1,7 @@
 <html>
    <head>
       {% block head %}
-      {% set url = "1; url=" + frontmatter.redirect %}
+      {% set url = "1; url={{ frontmatter.redirect }}" %}
       <meta http-equiv="refresh" content={{url}}/>
       <script type="text/javascript">
          window.location.href = {{ frontmatter.redirect }};

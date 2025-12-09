@@ -15,4 +15,4 @@ rss:
 render: 
   unsafe_render: true
 logging: 
-  level : "TRACE"
+  level : "INFO"

@@ -131,9 +131,11 @@ async fn main() {
                 .await
                 .unwrap();
             if local_render_env.serve {
-                jobWorkflows::serveAndWatchWorkflow::serve(&local_render_env, &settings)
+                tokio::spawn(async{
+                    jobWorkflows::serveAndWatchWorkflow::serve(&local_render_env, &settings)
                     .await
                     .unwrap();
+                }).await.unwrap();
             }
         }
     }
