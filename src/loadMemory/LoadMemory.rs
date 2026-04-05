@@ -70,12 +70,12 @@ pub async fn discover_content(
                     Err(e) => return Err(e),
                 };
                 //As we are using a parent lock, cotention on hasmap should be low
-                let _gaurd = local_lock
+                let _guard = local_lock
                     .lock()
                     .expect("Something went wrong getting outer lock");
                 BuildForwardIndex(local_fi, &content_store);
                 BuildReverseIndex(local_ri, &content_store);
-                drop(_gaurd);
+                drop(_guard);
                 //Lock drops here
                 local_cdm
                     .lock()

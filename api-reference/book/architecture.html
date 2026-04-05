@@ -1,0 +1,409 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Project Architecture - api-reference</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">api-reference</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="architecture"><a class="header" href="#architecture">Architecture</a></h1>
+<p>This page describes the internal architecture and build pipeline of Sapling.</p>
+<h2 id="high-level-overview"><a class="header" href="#high-level-overview">High-Level Overview</a></h2>
+<pre class="mermaid">flowchart LR
+    Input[Input Files] --&gt; Parse[Parse Phase]
+    Parse --&gt; Discover[Discover Content]
+    Discover --&gt; Merge[Merge Phase]
+    Merge --&gt; Render[Render Phase]
+    Render --&gt; PostProcess[Post-Process]
+    PostProcess --&gt; Output[static/]
+</pre>
+<h2 id="phase-1-parse-templates"><a class="header" href="#phase-1-parse-templates">Phase 1: Parse Templates</a></h2>
+<pre class="mermaid">flowchart LR
+    templates[&quot;templates/*.html&quot;] --&gt; PT1[&quot;Tera::new(glob)&quot;]
+    PT1 --&gt; PT2[Compile templates]
+    PT2 --&gt; PT3[Validate syntax]
+    PT3 --&gt; Tera[&quot;Tera instance (cached)&quot;]
+    
+    Tera -.-&gt;|&quot;used in&quot;| Render[Render Phase]
+    Tera -.-&gt;|&quot;used in&quot;| ReverseIndex[Reverse Index Phase]
+</pre>
+<p>Templates are loaded once via glob pattern and compiled into a Tera instance. This instance is reused for all rendering operations.</p>
+<h2 id="phase-2-discover-content"><a class="header" href="#phase-2-discover-content">Phase 2: Discover Content</a></h2>
+<pre class="mermaid">flowchart TB
+    content[&quot;content/*.md&quot;] --&gt; WalkDir[&quot;WalkDir traversal&quot;]
+    WalkDir --&gt; Spawn[&quot;tokio::spawn (per file)&quot;]
+    
+    subgraph PerFile[&quot;Per-File Parallel Processing&quot;]
+        Spawn --&gt; Read[&quot;fs::read_to_string&quot;]
+        Read --&gt; Comrak[&quot;comrak::parse_document&quot;]
+        Comrak --&gt; Extract[&quot;Extract frontmatter&quot;]
+        Extract --&gt; YAML[&quot;serde_yaml::from_str&quot;]
+        Comrak --&gt; HTML[&quot;comrak::format_html&quot;]
+        YAML --&gt; FI[&quot;BuildForwardIndex&quot;]
+        HTML --&gt; FI
+        YAML --&gt; RI[&quot;BuildReverseIndex&quot;]
+        HTML --&gt; RI
+    end
+    
+    FI --&gt; Merge[&quot;MergeForwardIndex&quot;]
+    RI --&gt; Merge
+    
+    Merge --&gt; Discovered[&quot;Discovered { HashMap&amp;lt;String, ContentDocument&amp;gt; }&quot;]
+</pre>
+<p>Each markdown file is parsed in parallel. Indexes are built during discovery.</p>
+<h3 id="per-file-flow-detail"><a class="header" href="#per-file-flow-detail">Per-File Flow Detail</a></h3>
+<pre class="mermaid">flowchart LR
+    MD[&quot;blog.md&quot;] --&gt; Parse[&quot;ParseMarkdown::parse&quot;]
+    Parse --&gt; FM[&quot;frontmatter: YAML Value&quot;]
+    Parse --&gt; Content[&quot;content: HTML string&quot;]
+    Parse --&gt; Name[&quot;name: String&quot;]
+    
+    FM --&gt; Doc[&quot;ContentDocument&quot;]
+    Content --&gt; Doc
+    Name --&gt; Doc
+</pre>
+<h2 id="phase-3-merge-forwardindex"><a class="header" href="#phase-3-merge-forwardindex">Phase 3: Merge ForwardIndex</a></h2>
+<pre class="mermaid">flowchart TB
+    subgraph Before[&quot;Before Merge&quot;]
+        FI[&quot;ForwardIndex&amp;lt;br/&amp;gt;HashMap&amp;lt;String, Vec&amp;lt;Value&amp;gt;&amp;gt;&quot;]
+        CD1[&quot;ContentDocument A&quot;]
+        CD2[&quot;ContentDocument B&quot;]
+        CD3[&quot;ContentDocument C&quot;]
+    end
+    
+    FI --&gt;|&quot;clone&quot;| CD1
+    FI --&gt;|&quot;clone&quot;| CD2
+    FI --&gt;|&quot;clone&quot;| CD3
+    
+    subgraph After[&quot;After Merge&quot;]
+        CD1M[&quot;ContentDocument A&amp;lt;br/&amp;gt;+ forwardindex&quot;]
+        CD2M[&quot;ContentDocument B&amp;lt;br/&amp;gt;+ forwardindex&quot;]
+        CD3M[&quot;ContentDocument C&amp;lt;br/&amp;gt;+ forwardindex&quot;]
+    end
+</pre>
+<p><strong>Bottleneck:</strong> Each ContentDocument gets a full clone of the forwardindex. For N documents, this is O(n²) memory.</p>
+<h2 id="phase-4-render-html"><a class="header" href="#phase-4-render-html">Phase 4: Render HTML</a></h2>
+<pre class="mermaid">flowchart LR
+    Discovered[&quot;Discovered HashMap&quot;] --&gt; Spawn2[&quot;tokio::spawn (per doc)&quot;]
+    Tera[&quot;Tera instance&quot;] --&gt; Spawn2
+    
+    subgraph PerDoc[&quot;Per-Document Rendering&quot;]
+        Spawn2 --&gt; Path[&quot;decide_static_serve_path&quot;]
+        Path --&gt; Validate[&quot;validate_template_request&quot;]
+        Validate --&gt; Context[&quot;Context::from_serialize&quot;]
+        Context --&gt; Render[&quot;tera.render&quot;]
+        Render --&gt; Write[&quot;fs::write&quot;]
+    end
+    
+    Write --&gt; Output[&quot;static/{link}.html&quot;]
+</pre>
+<p>Each document is rendered in parallel using the cached Tera instance.</p>
+<h2 id="phase-5-css-bundle"><a class="header" href="#phase-5-css-bundle">Phase 5: CSS Bundle</a></h2>
+<pre class="mermaid">flowchart LR
+    CSS[&quot;css/*.css&quot;] --&gt; Walk[&quot;WalkDir::new&quot;]
+    Walk --&gt; Bundle[&quot;LightningCSS Bundler&quot;]
+    Bundle --&gt; Imports[&quot;Resolve @import&quot;]
+    Imports --&gt; Minify[&quot;Minify&quot;]
+    Minify --&gt; Output[&quot;static/css/*.css&quot;]
+</pre>
+<p>CSS files are bundled and minified using LightningCSS. This phase is sequential.</p>
+<h2 id="phase-6-copy-assets"><a class="header" href="#phase-6-copy-assets">Phase 6: Copy Assets</a></h2>
+<pre class="mermaid">flowchart LR
+    Assets[&quot;assets/*&quot;] --&gt; Walk2[&quot;WalkDir::new&quot;]
+    Walk2 --&gt; Copy[&quot;fs::copy&quot;]
+    Copy --&gt; Output2[&quot;static/assets/*&quot;]
+</pre>
+<p>Direct file copy, no transformation.</p>
+<h2 id="phase-7-reverse-index-render"><a class="header" href="#phase-7-reverse-index-render">Phase 7: Reverse Index Render</a></h2>
+<pre class="mermaid">flowchart TB
+    RI[&quot;ReverseIndex&quot;] --&gt; Iter[&quot;Iterate keys&quot;]
+    
+    subgraph PerKey[&quot;Per Key (e.g. 'tags')&quot;]
+        Iter --&gt; IterVals[&quot;Iterate values (e.g. 'rust', 'go')&quot;]
+        IterVals --&gt; Mkdir[&quot;mkdir static/tags/{value}/&quot;]
+        Mkdir --&gt; BuildCtx[&quot;Build Context&amp;lt;br/&amp;gt;{ reverseindex, reverseindexon }&quot;]
+        BuildCtx --&gt; Render2[&quot;tera.render&quot;]
+        Render2 --&gt; Write2[&quot;write index.html&quot;]
+    end
+    
+    Tera2[&quot;Tera instance&quot;] -.-&gt; Render2
+    Write2 --&gt; Output3[&quot;static/tags/rust/index.html&amp;lt;br/&amp;gt;static/author/navin/index.html&quot;]
+</pre>
+<p>Generates listing pages for each tag, author, or other reverse-indexed field.</p>
+<h2 id="phase-8-rss-generation"><a class="header" href="#phase-8-rss-generation">Phase 8: RSS Generation</a></h2>
+<pre class="mermaid">flowchart LR
+    Settings[&quot;settings.yaml&quot;] --&gt; Groups[&quot;rss_groups config&quot;]
+    Discovered2[&quot;Discovered HashMap&quot;] --&gt; Map[&quot;generate_rss_map&quot;]
+    Groups --&gt; Map
+    
+    Map --&gt; RenderRSS[&quot;render_rss&quot;]
+    RenderRSS --&gt; Output4[&quot;static/rss/*.xml&quot;]
+</pre>
+<h2 id="pipeline-stages-summary"><a class="header" href="#pipeline-stages-summary">Pipeline Stages Summary</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Stage</th><th>Module</th><th>Parallel?</th><th>Description</th></tr></thead><tbody>
+<tr><td>Parse Templates</td><td><code>ParseTemplate</code></td><td>No</td><td>Load all templates via Tera glob, compile once</td></tr>
+<tr><td>Discover Content</td><td><code>LoadMemory</code></td><td>Yes (per file)</td><td>Walk content/, parse MD in parallel, build indices</td></tr>
+<tr><td>Merge ForwardIndex</td><td><code>LoadMemory</code></td><td>No</td><td>Clone forwardindex into every ContentDocument</td></tr>
+<tr><td>Render HTML</td><td><code>RenderMarkdown</code></td><td>Yes (per doc)</td><td>Apply templates, write HTML files</td></tr>
+<tr><td>Bundle CSS</td><td><code>RenderMarkdown</code></td><td>No</td><td>LightningCSS bundle + minify each CSS file</td></tr>
+<tr><td>Copy Assets</td><td><code>RenderMarkdown</code></td><td>No</td><td>Direct file copy</td></tr>
+<tr><td>Reverse Index</td><td><code>ReverseIndex</code></td><td>No</td><td>Generate tag/author listing pages</td></tr>
+<tr><td>RSS</td><td><code>rss</code></td><td>No</td><td>Generate RSS XML feeds</td></tr>
+</tbody></table>
+</div>
+<h2 id="data-structures"><a class="header" href="#data-structures">Data Structures</a></h2>
+<h3 id="contentdocument"><a class="header" href="#contentdocument">ContentDocument</a></h3>
+<pre class="mermaid">classDiagram
+    class ContentDocument {
+        +frontmatter_raw: Option~String~
+        +frontmatter: Option~Value~
+        +content: Option~String~
+        +name: Option~String~
+        +forwardindex: Option~HashMap~
+    }
+</pre>
+<h3 id="index-structures"><a class="header" href="#index-structures">Index Structures</a></h3>
+<pre class="mermaid">flowchart TB
+    subgraph ForwardIndex[&quot;ForwardIndex&quot;]
+        FI_H[&quot;HashMap&amp;lt;String, Vec&amp;lt;Value&amp;gt;&amp;gt;&quot;]
+        FI_H --&gt; FI_K1[&quot;'blog' → [post1_fm, post2_fm, ...]&quot;]
+        FI_H --&gt; FI_K2[&quot;'news' → [news1_fm, ...]&quot;]
+    end
+    
+    subgraph ReverseIndex[&quot;ReverseIndex&quot;]
+        RI_H[&quot;HashMap&amp;lt;String, HashMap&amp;lt;String, Vec&amp;lt;Value&amp;gt;&amp;gt;&amp;gt;&quot;]
+        RI_H --&gt; RI_O[&quot;'tags' → HashMap&quot;]
+        RI_H --&gt; RI_O2[&quot;'author' → HashMap&quot;]
+        RI_O --&gt; RI_V1[&quot;'rust' → [post1_fm, post3_fm]&quot;]
+        RI_O --&gt; RI_V2[&quot;'go' → [post2_fm]&quot;]
+    end
+</pre>
+<h3 id="core-types"><a class="header" href="#core-types">Core Types</a></h3>
+<div class="table-wrapper"><table><thead><tr><th>Type</th><th>Location</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>ContentDocument</code></td><td><code>ParseMarkdown.rs</code></td><td>Primary data carrier: frontmatter, content HTML, name</td></tr>
+<tr><td><code>Discovered</code></td><td><code>LoadMemory.rs</code></td><td>Wrapper <code>HashMap&lt;String, ContentDocument&gt;</code></td></tr>
+<tr><td><code>TemplatesMetaData</code></td><td><code>ParseTemplate.rs</code></td><td>Thin wrapper around Tera instance</td></tr>
+<tr><td><code>ForwardIndex</code></td><td><code>LoadMemory.rs</code></td><td><code>HashMap&lt;String, Vec&lt;Value&gt;&gt;</code> - keyed by index name</td></tr>
+<tr><td><code>ReverseIndex</code></td><td><code>LoadMemory.rs</code></td><td>Nested HashMap for tag/author pages</td></tr>
+</tbody></table>
+</div>
+<h2 id="known-bottlenecks"><a class="header" href="#known-bottlenecks">Known Bottlenecks</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Issue</th><th>Location</th><th>Impact</th><th>Fix</th></tr></thead><tbody>
+<tr><td>O(n²) Memory</td><td><code>LoadMemory.rs:188-200</code></td><td>Clones forwardindex into every document</td><td>Use <code>Arc&lt;HashMap&gt;</code> or Tera global context</td></tr>
+<tr><td>Sync MD Parsing</td><td><code>ParseMarkdown::parse</code></td><td>Blocks tokio worker threads</td><td>Use <code>tokio::fs</code> or <code>rayon</code></td></tr>
+<tr><td>Parent Mutex</td><td><code>LoadMemory.rs:72-79</code></td><td>Serializes index updates</td><td>Remove or use proper RwLock strategy</td></tr>
+<tr><td>Sequential CSS</td><td><code>copy_css_files</code></td><td>No parallelism</td><td>Parallelize bundling</td></tr>
+</tbody></table>
+</div>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="contributors.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="contributors.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="mermaid.min.js"></script>
+        <script src="mermaid-init.js"></script>
+
+
+    </div>
+    </body>
+</html>

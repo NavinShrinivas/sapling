@@ -14,3 +14,4 @@
 - [Serving](./serving.md)
 - [Example project](./Example.md)
 - [Contributors and Credits](./contributors.md)
+- [Project Architecture](./architecture.md)
